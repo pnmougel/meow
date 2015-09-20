@@ -1,0 +1,130 @@
+.round-panel {
+    color: #777777;
+    padding: 0 2 0 7;
+}
+
+.round-panel-input {
+    padding: -1 4 -1 -1;
+}
+
+.BsLabelContent {
+    // color: #5BC0DE;
+    color: #777777;
+    font: 11 plain Roboto-Bold;
+    padding: 0 6 1 0;
+}
+
+.folder-name {
+    font: 16 plain Roboto;
+    color: #3E3D39;
+    padding: 0 0 0 4;
+}
+
+.round-panel-input-field {
+    padding: 2 0 3 2;
+    font: 10 plain verdana;
+}
+
+.entry-name-label {
+    font: 13 bold Roboto;
+}
+
+.entry-name-title {
+    font: 26 bold Roboto-Light;
+}
+
+.folder-panel {
+	background: #ffffff;
+	padding: 0 0 0 0;
+}
+
+.folder-panel-container {
+	background: #ffffff;
+	padding: 0;
+}
+
+.add-folder {
+	font: 16 plain Roboto;
+	padding: 10 0 3 0;
+}
+
+.filter-title-label {
+	font: 14 plain Roboto;
+	padding: 5 15 10 0;
+}
+
+.show-hidden-entries {
+	font: 16 plain Roboto-Light;
+}
+
+.app-name-filter {
+	font: 14 plain Roboto;
+}
+
+.bs-toggle {
+	font: 14 plain Roboto-Light;
+	padding: 4 0 0 6
+}
+
+.task-name {
+    font: 14 plain Roboto-Light;
+    padding: 7 0 4 7
+}
+
+.appname {
+    font: 30 bold Roboto;
+    color: #333333;
+    padding: 28 0 0 17
+}
+.app-description {
+   font: 12 plain Roboto;
+   color: #333333;
+   padding: 0 0 7 17
+}
+
+.header-label {
+    font: 20 plain Roboto;
+    padding: 20 0 0 7;
+}
+
+.no-applications-to-display {
+    color: #444444
+    font: 25 plain Roboto;
+    padding: 10 0 0 30;
+}
+
+.add-folder-input {
+    font: 14 plain Roboto;
+    padding: 6 10;
+}
+
+.application-name {
+    font: 17 plain Roboto;
+    padding: 4;
+}
+
+.keyword {
+    font: 12 bold Roboto;
+    color: #777777;
+    padding: 0 2 0 4;
+}
+
+.hidden-input {
+    font: 13 plain Roboto;
+    // color: #333333;
+    padding: 4;
+}
+
+.small-hidden-input {
+    font: 11 plain Roboto;
+    padding: 2 4 4 2;
+}
+
+.property-name {
+    font: 13 plain Roboto;
+    padding: 5 0 0 6
+}
+
+.no-icon-found {
+    font: 13 plain Roboto;
+}
