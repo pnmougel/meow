@@ -1,7 +1,7 @@
-svg-raster
-target
-.idea
-.idea_modules
-icons
-.directory
-pid
+/svg-raster
+/target
+/.idea
+/.idea_modules
+/icons
+/.directory
+/pid
