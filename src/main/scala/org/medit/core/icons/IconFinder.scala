@@ -11,7 +11,6 @@ import scala.collection._
 
 object IconFinder {
   val missing = IconGenerator.generateIcon("No icon found", Colors.lightGray)
-    // ImageIO.read(Main.getFile("/missing.png"))
   val iconCache = mutable.HashMap[String, Image]()
   val iconCacheWithSize = mutable.HashMap[(String, Int), ImageIcon]()
 
@@ -22,6 +21,7 @@ object IconFinder {
     })
   }
 
+  val validExt = Array("", ".png", ".svg", ".jpg", ".xpm")
   private def loadIcon(nameBase: String, size: Int = 64) : Image = {
     val iconName = nameBase.toLowerCase
     val iconFile = new File(nameBase)
@@ -29,11 +29,13 @@ object IconFinder {
     // Seems to be a path to a file, try to read the file
     if (iconFile.isFile) {
       for(img <- ImageLoader.get(nameBase)) { iconCache(iconName) = img } }
-
+    else {
+      for(missingName <- IconLibrary.missingIcons.get(nameBase); img <- ImageLoader.get(missingName)) {
+        iconCache(iconName) = img
+      }
+    }
     iconCache.getOrElseUpdate(iconName, {
-      (for(icon <- IconLibrary.icons.get(iconName); image <- icon.getIcon) yield {
-        image
-      }).getOrElse(missing)
+      IconLibrary.iconThemes(IconLibrary.iconTheme).getIcon(iconName).getOrElse(missing)
     })
   }
 

@@ -44,9 +44,9 @@ object Build extends Build {
       libraryDependencies ++= dependencies
     )
     .settings(
-      mainClass in(Compile, run) := Some("org.medit.gui.Main"),
-      mainClass in packageBin := Some("org.medit.gui.Main"),
-      mainClass in Compile := Some("org.medit.gui.Main"),
+      mainClass in(Compile, run) := Some("org.medit.gui.Runner"),
+      mainClass in packageBin := Some("org.medit.gui.Runner"),
+      mainClass in Compile := Some("org.medit.gui.Runner"),
       maintainer := "Pierre-Nicolas <pnmougel@gmail.com>"
     )
     .settings(

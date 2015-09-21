@@ -20,28 +20,40 @@ import scala.sys.process.stringSeqToProcess
  */
 object IconLibrary {
   val home = System.getProperty("user.home")
-  val pathsForIcons = Seq("/usr/share/icons", s"${home}/.local/share/icons", "/usr/share/pixmaps")
+  val pathsForIcons = Seq("/usr/share/icons", "/usr/local/share/icons", s"${home}/.local/share/icons", "/usr/share/pixmaps")
   val icons = mutable.HashMap[String, AppIcon]()
-//  val gtkTheme = Seq("gsettings", "get", "org.gnome.desktop.interface", "gtk-theme").!!.trim().replaceAllLiterally("'", "")
+  val gtkTheme = Seq("gsettings", "get", "org.gnome.desktop.interface", "gtk-theme").!!.trim().replaceAllLiterally("'", "")
   val iconTheme = Seq("gsettings", "get", "org.gnome.desktop.interface", "icon-theme").!!.trim().replaceAllLiterally("'", "")
-  val gtkTheme = "Faenza"
-  println(gtkTheme)
-  println(iconTheme)
+
+  var iconThemes = mutable.HashMap[String, IconTheme]()
 
   val categories = mutable.HashMap[String, mutable.HashSet[AppIcon]]()
   val categoriesList = mutable.HashSet("mimetypes","animations","code","actions","cursors","web","media","stock","text","mimes","categories","form","symbolic","navigation","icons","status-extra","filesystems","apps-extra","image","sources","devices","special","actions-extra","places","data","table","io","object","status","places-extra","chart","emotes","net","intl","emblems","search","apps")
   val allIconsPath = mutable.HashMap[(String, String, String), (Int, String, Boolean)]()
-  val timer = new javax.swing.Timer(1000, new ActionListener {
-    override def actionPerformed(p1: ActionEvent): Unit = {
-      println("Key pressed")
-    }
-  })
 
   categories("") = mutable.HashSet[AppIcon]()
   for(c <- categoriesList) { categories(c) = mutable.HashSet[AppIcon]()}
   val thumbnailSize = 40
   var curTheme = ""
   var curCategory = ""
+
+  val missingIcons = mutable.HashMap[String, String]()
+
+  def explorePath(file: File) : Unit = {
+    for(theme <- file.listFiles()) {
+      val absolutePath = theme.getAbsolutePath
+      if(theme.isDirectory) {
+        val themeFile = new File(absolutePath + "/index.theme")
+        if(themeFile.isFile) {
+          iconThemes(theme.getName) = new IconTheme(theme, themeFile)
+        }
+      } else {
+        for(n <- List(theme.getName, FilenameUtils.getBaseName(theme.getName))) {
+          missingIcons(n) = absolutePath
+        }
+      }
+    }
+  }
 
   def explorePath(curFile: File, level: Int, size: Int, category: String) : Unit = {
     var file = curFile
@@ -79,11 +91,6 @@ object IconLibrary {
         if(prevIsSvg && curSize > 48 || (!prevIsSvg && prevSize < curSize) || (ext == "svg" && prevSize < 30)) {
           allIconsPath((fileNameWithoutExtension, curTheme, curCategory)) = (curSize, file.getAbsolutePath, ext == "svg")
         }
-//        val sizeImprove = (Math.abs(prevSize - thumbnailSize) < Math.abs(curSize - thumbnailSize))
-//        if(prevIsSvg && curSize >= thumbnailSize || (!prevIsSvg && sizeImprove) || (ext == "svg" && prevSize < thumbnailSize)) {
-//          allIconsPath((fileNameWithoutExtension, curTheme, curCategory)) = (curSize, file.getAbsolutePath, ext == "svg")
-//        }
-
         val curIcon = icons.getOrElseUpdate(fileNameWithoutExtension, new AppIcon(fileName))
         if(!curCategory.isEmpty) {
           categories(curCategory).add(curIcon)
@@ -135,5 +142,11 @@ object IconLibrary {
   }
 
 
+  Timer2.startTimer("Explore1")
+  for (path <- pathsForIcons) { explorePath(new File(path)) }
+  Timer2.stopTimer("Explore1")
+  Timer2.startTimer("Explore2")
   for (path <- pathsForIcons) { explorePath(new File(path), 0, -1, "") }
+  Timer2.stopTimer("Explore2")
+  Timer2.printTimers()
 }

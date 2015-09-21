@@ -1,14 +1,14 @@
-package org.medit.core
+package org.medit.core.root
 
 import java.io.File
-import javax.swing.JFrame
 
 import org.jasypt.util.text.StrongTextEncryptor
+import org.medit.core.GnomeBlackList
 
-import scala.io.Source
+import scala.sys.process.stringToProcess
+import scala.sys.process.stringSeqToProcess
 import scala.util.Random
 import scalaj.http.Http
-import scala.sys.process.{ProcessIO, stringToProcess}
 
 /**
  * Created by nico on 18/09/15.
@@ -22,7 +22,8 @@ object RootAccess {
   val port = 4328
 
   def getRootAccess = {
-    val ret = s"pkexec java -jar /home/nico/workspace/Meow-Admin/target/scala-2.10/Meow-Admin-assembly-1.0.jar test ${key}".run
+//    val ret = s"pkexec java -jar /home/nico/workspace/Meow-Admin/target/scala-2.10/Meow-Admin-assembly-1.0.jar test ${key}".run
+    s"pkexec meow admin ${key}".run
   }
 
   def writeFile(file: File, fileContent: String): Unit = {
@@ -31,6 +32,14 @@ object RootAccess {
     val cypheredData = textDecryptor.encrypt(rawData)
     try {
       Http(s"http://localhost:${port}/write").postData(cypheredData).header("content-type", "text/plain").asString
+    } catch { case e: Throwable => {}}
+  }
+
+  def saveBlackList() : Unit = {
+    val rawData = List(code, GnomeBlackList).mkString("\n")
+    val cypheredData = textDecryptor.encrypt(rawData)
+    try {
+      Http(s"http://localhost:${port}/blacklist").postData(cypheredData).header("content-type", "text/plain").asString
     } catch { case e: Throwable => {}}
   }
 
@@ -48,6 +57,7 @@ object RootAccess {
   }
 
   def main(args: Array[String]) : Unit = {
+
 //    val f = new File("/usr/share/applications/nautilus.desktop")
 //    val conf = ConfigFactory.parseFile(f)
 //    println(conf)
