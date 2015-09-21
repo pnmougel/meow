@@ -40,16 +40,18 @@ object IconLibrary {
   val missingIcons = mutable.HashMap[String, String]()
 
   def explorePath(file: File) : Unit = {
-    for(theme <- file.listFiles()) {
-      val absolutePath = theme.getAbsolutePath
-      if(theme.isDirectory) {
-        val themeFile = new File(absolutePath + "/index.theme")
-        if(themeFile.isFile) {
-          iconThemes(theme.getName) = new IconTheme(theme, themeFile)
-        }
-      } else {
-        for(n <- List(theme.getName, FilenameUtils.getBaseName(theme.getName))) {
-          missingIcons(n) = absolutePath
+    if(file.exists()) {
+      for(theme <- file.listFiles()) {
+        val absolutePath = theme.getAbsolutePath
+        if(theme.isDirectory) {
+          val themeFile = new File(absolutePath + "/index.theme")
+          if(themeFile.isFile) {
+            iconThemes(theme.getName) = new IconTheme(theme, themeFile)
+          }
+        } else {
+          for(n <- List(theme.getName, FilenameUtils.getBaseName(theme.getName))) {
+            missingIcons(n) = absolutePath
+          }
         }
       }
     }
