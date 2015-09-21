@@ -22,8 +22,9 @@ object IconLibrary {
   val home = System.getProperty("user.home")
   val pathsForIcons = Seq("/usr/share/icons", s"${home}/.local/share/icons", "/usr/share/pixmaps")
   val icons = mutable.HashMap[String, AppIcon]()
-  val gtkTheme = Seq("gsettings", "get", "org.gnome.desktop.interface", "gtk-theme").!!.trim().replaceAllLiterally("'", "").toLowerCase()
-  val iconTheme = Seq("gsettings", "get", "org.gnome.desktop.interface", "icon-theme").!!.trim().replaceAllLiterally("'", "").toLowerCase()
+//  val gtkTheme = Seq("gsettings", "get", "org.gnome.desktop.interface", "gtk-theme").!!.trim().replaceAllLiterally("'", "")
+  val iconTheme = Seq("gsettings", "get", "org.gnome.desktop.interface", "icon-theme").!!.trim().replaceAllLiterally("'", "")
+  val gtkTheme = "Faenza"
   println(gtkTheme)
   println(iconTheme)
 
@@ -48,7 +49,9 @@ object IconLibrary {
     var curCategory = category
     var fileName = file.getName
     if (file.isDirectory) {
-      if (level == 1) { curTheme = fileName }
+      if (level == 1) {
+        curTheme = fileName
+      }
       if(level > 1) {
         if(categoriesList.contains(fileName)) { curCategory = fileName }
         try {
@@ -92,55 +95,19 @@ object IconLibrary {
     if(level == 3) { curCategory = ""}
     if(level == 2) { curSize = -1}
   }
-  /*
-  def searchIcon(name: String, categorySearched: Option[String] = None, themeSearched: Option[String] = None) : List[LazyIconLoader] = {
-    val digests = new mutable.HashSet[String]
-    val nameLower = name.toLowerCase.trim()
-
-    val z = (for (((iconName, iconTheme, iconCategory)) <- allIconsPath.keySet) yield {
-      val (iconSize, iconPath, _) = allIconsPath((iconName, iconTheme, iconCategory))
-      var matchScore = if (iconName == nameLower) 0
-      else if (iconName.startsWith(nameLower)) 1
-      else if (iconName.contains(nameLower)) 2
-      else -1
-      if(iconSize < 32) matchScore = -1
-      for (c <- categorySearched; if c != iconCategory) matchScore = -1
-      for (c <- themeSearched; if c != iconTheme) matchScore = -1
-      (matchScore, iconPath)
-    }).filter(_._1 != -1).toList.sortWith( (a, b) => {
-      if(a._1 > b._1) { false }
-      else if(a._1 == b._1) { a._2 < b._2 }
-      else true
-    })
-
-    z.map( e => {
-      Timer2.startTimer("Hashing")
-      val file = new File(e._2)
-//      val buffer = ByteBuffer.allocate(2048)
-//      val channel = FileChannel.open(Paths.get(file.toURI))
-//      channel.read(buffer)
-//val hash = new BigInteger(md.digest(buffer.array())).toString
-      val md = MessageDigest.getInstance("MD5")
-      val hash = new BigInteger(md.digest(FileUtils.readFileToByteArray(file))).toString
-      val isAlreadyFound = digests.contains(hash)
-      digests.add(hash)
-      (e._1, e._2, isAlreadyFound)
-    }).filterNot(_._3).map(e => {
-        new LazyIconLoader(e._2, thumbnailSize)
-    }).take(100)
-  }
-  */
 
   val digests = new mutable.HashSet[String]
   def searchIcon(name: String, categorySearched: Option[String] = None, themeSearched: Option[String] = None) : List[(Int, String)] = {
     digests.clear()
     val nameLower = name.toLowerCase.trim()
+    val nameParts = nameLower.split(" ")
 
     (for (((iconName, iconTheme, iconCategory)) <- allIconsPath.keySet) yield {
       val (iconSize, iconPath, _) = allIconsPath((iconName, iconTheme, iconCategory))
       var matchScore = if (iconName == nameLower) 0
       else if (iconName.startsWith(nameLower)) 1
       else if (iconName.contains(nameLower)) 2
+      else if (nameParts.exists(n => iconName.contains(n))) 3
       else -1
       if(iconSize < 32) matchScore = -1
       for (c <- categorySearched; if c != iconCategory) matchScore = -1
