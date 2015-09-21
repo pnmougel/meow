@@ -6,7 +6,7 @@ import com.alee.extended.image.WebImage
 import com.alee.laf.label.WebLabel
 import com.alee.laf.panel.WebPanel
 import com.alee.laf.text.WebTextField
-import org.medit.core.RootAccess
+import org.medit.core.root.RootAccess
 import org.medit.gui.utils.SwingEvents._
 import org.medit.gui.utils.{Icon, WrapLayout}
 
@@ -36,6 +36,7 @@ object EntriesHeader extends WebPanel(new BorderLayout()) {
       RootAccess.getRootAccess
       rootAccess.setIcon(unlockIcon)
     }
+//    rootAccess.setIcon(if(RootAccess.isRootEnabled) unlockIcon else lockIcon)
   })
   rootAccess.setMargin(0, 0, 0, 10)
 

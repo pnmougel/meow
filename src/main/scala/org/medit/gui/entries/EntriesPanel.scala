@@ -67,10 +67,11 @@ object EntriesPanel extends JPanel(new BorderLayout) {
   val allEntryViews = allEntries.map(entry => {
     val entryView = new EntryView(entry)
     entryView.onClick(e => {
+      println(entryView.entry)
       if(isSplitted) {
         merge()
       } else {
-        val nbItemsPerRow = splitInTwo(entryView)
+        splitInTwo(entryView)
         EntryDetailsPanel.setEntry(entryView)
       }
     })
