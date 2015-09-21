@@ -6,11 +6,11 @@ import scala.collection.mutable.HashSet
 
 object DesktopEntries {
   val home = System.getProperty("user.home")
-  val desktopEntriePaths = List(s"$home/.local/share/applications/", "/usr/share/applications")
+  val desktopEntriePaths = List(s"$home/.local/share/applications/", "/usr/share/applications", "/usr/local/share/applications")
 
   // List of all desktop entries
   var desktopEntries = List[DesktopEntry]()
-  desktopEntriePaths.foreach(findDesktopEntries)
+  for(path <- desktopEntriePaths) { findDesktopEntries(path) }
 
   // Find all properties
   val propertiesCount = mutable.HashMap[String, Int]()
@@ -47,10 +47,10 @@ object DesktopEntries {
     val f = new File(path)
     if(f.isDirectory) {
       f.listFiles().foreach(file => {
-        if (file.isDirectory()) {
-          findDesktopEntries(file.getCanonicalPath())
+        if (file.isDirectory) {
+          findDesktopEntries(file.getCanonicalPath)
         } else {
-          if (file.getName().endsWith(".desktop")) {
+          if (file.getName.endsWith(".desktop")) {
             val desktopEntry = new DesktopEntry(file)
             desktopEntries = desktopEntry :: desktopEntries
             // makeBackup(file)
@@ -61,7 +61,7 @@ object DesktopEntries {
   }
 
   def getDesktopEntries() = {
-    desktopEntries.sortBy(a => a.getName.toLowerCase())
+    desktopEntries.sortBy(a => a.getName.replaceAllLiterally(" ", "z").toLowerCase())
   }
 
   /**

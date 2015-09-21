@@ -2,6 +2,7 @@ package org.medit.core.entries
 
 import java.io.File
 import org.medit.core.properties.{PropertyFile, Group, Property}
+import org.medit.core.root.RootAccess
 
 import scala.io.Source
 import scala.collection.mutable.HashMap
@@ -9,7 +10,7 @@ import scala.Vector
 import sys.process.stringSeqToProcess
 import sys.process.stringToProcess
 import java.io.PrintWriter
-import org.medit.core.{RootAccess, Folders, Folder}
+import org.medit.core.{GnomeBlackList, Folders, Folder}
 import org.medit.gui.folders.FolderView
 
 class DesktopEntry(val file: File) extends PropertyFile(file, "Desktop Entry") {
@@ -32,7 +33,9 @@ class DesktopEntry(val file: File) extends PropertyFile(file, "Desktop Entry") {
     for (exec <- getValue("Exec"); entryType <- getType) {
       if (!exec.isEmpty()) {
         val progName = if (exec.startsWith("\"")) {
-          if (exec.split("\"").size == 1) { "" } else exec.split("\"")(1)
+          if (exec.split("\"").size == 1) {
+            ""
+          } else exec.split("\"")(1)
         } else {
           exec.split(" ")(0)
         }
@@ -42,8 +45,12 @@ class DesktopEntry(val file: File) extends PropertyFile(file, "Desktop Entry") {
           try {
             val res = Seq("which", progName).!!
             isValid = res.startsWith("/")
-          } catch { case e: Throwable => {} }
+          } catch {
+            case e: Throwable => {}
+          }
         }
+      } else {
+        isValid = true
       }
     }
     isValid
@@ -52,6 +59,11 @@ class DesktopEntry(val file: File) extends PropertyFile(file, "Desktop Entry") {
   def isDisplayedIn(environments: List[String]): Boolean = {
     val environmentsSet = environments.toSet
     val onlyShowIn = getListValue("OnlyShowIn")
+
+    val displayInGnome = environmentsSet.contains("GNOME")
+    if(displayInGnome) {
+      GnomeBlackList.isInBlackList(this)
+    }
 
     // Check if entry is in required list
     var shouldBeDisplayed = if (!onlyShowIn.isDefined || onlyShowIn.get.isEmpty) {
@@ -68,15 +80,19 @@ class DesktopEntry(val file: File) extends PropertyFile(file, "Desktop Entry") {
       }
     }
     for (
-      desktops <- getListValue("NotShownIn");
+      desktops <- getListValue("NotShowIn");
       desktopName <- desktops
     ) {
       if (environmentsSet.contains(desktopName)) {
         shouldBeDisplayed = false
       }
     }
+    if(displayInGnome) {
+      shouldBeDisplayed &= !GnomeBlackList.isInBlackList(this)
+    }
     shouldBeDisplayed
   }
+
 
   /**
    * Categories
