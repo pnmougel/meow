@@ -13,7 +13,7 @@ trait FontsLoader {
   val ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
   val fonts = List("HelveticaNeue", "Roboto-Regular", "Roboto-Thin", "Roboto-Light", "Roboto-Black", "Roboto-Bold", "Roboto-Medium")
   for (fontName <- fonts) {
-    var fontFile = Main.getClass.getResourceAsStream(s"/fonts/${fontName}.ttf")
+    val fontFile = Main.getClass.getResourceAsStream(s"/fonts/${fontName}.ttf")
     if (fontFile != null) {
       val font = Font.createFont(Font.TRUETYPE_FONT, fontFile)
       if (font != null) {

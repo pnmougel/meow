@@ -9,8 +9,10 @@ import javax.swing.JSlider
 import javax.swing.JTextField
 import com.alee.utils.swing.DocumentChangeListener
 import org.medit.gui.components.BsButton
-import org.medit.gui.components.BsInput
 
+/**
+ * This class automatically add methods to swing components to handle the most common events
+ */
 object SwingEvents {
     implicit def convertToActionable(c: JButton) = new SActionable(c)
     implicit def convertToActionable(c: JTextField) = new SActionable(c)
@@ -51,7 +53,6 @@ object SwingEvents {
       })
     }
   }
-
 
   implicit def convertComponent(c : JComponent) = new SComponent(c)
     class SComponent(c : JComponent) {

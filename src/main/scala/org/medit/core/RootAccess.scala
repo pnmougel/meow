@@ -35,11 +35,8 @@ object RootAccess {
   }
 
   def stopServer() = {
-    println("Stop server")
     try {
-      val res = Http(s"http://localhost:${port}/kill").header("content-type", "text/plain").asString
-      println(res.code)
-      println(res.body)
+      Http(s"http://localhost:${port}/kill").header("content-type", "text/plain").asString
     } catch { case e: Throwable => {}}
   }
 
@@ -51,9 +48,14 @@ object RootAccess {
   }
 
   def main(args: Array[String]) : Unit = {
-    stopServer()
-    getRootAccess
-    Thread.sleep(4000)
-    writeFile(new File("/usr/share/applications/ubuntu-amazon-default.desktop"), "[Desktop Entry]\nName=Amazon Changed\nType=Application\nIcon=amazon-store\nExec=unity-webapps-runner --amazon --app-id=ubuntu-amazon-default\nCategories=Internet;%%       ")
+//    val f = new File("/usr/share/applications/nautilus.desktop")
+//    val conf = ConfigFactory.parseFile(f)
+//    println(conf)
+
+
+//    stopServer()
+//    getRootAccess
+//    Thread.sleep(4000)
+//    writeFile(new File("/usr/share/applications/ubuntu-amazon-default.desktop"), "[Desktop Entry]\nName=Amazon Changed\nType=Application\nIcon=amazon-store\nExec=unity-webapps-runner --amazon --app-id=ubuntu-amazon-default\nCategories=Internet;%%       ")
   }
 }

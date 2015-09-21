@@ -31,7 +31,6 @@ object SVGRasterize {
 
 
   def rasterize(svgFile: File): Option[BufferedImage] = {
-    // val rasterName = svgFile.lastModified() + "-" + svgFile.getCanonicalPath.replaceAll("/", "_") + ".png"
     val rasterName = md5Hash(svgFile.getCanonicalPath + svgFile.lastModified()) + ".png"
     val rasterFile = svgRasterCache.listFiles().find(f => f.getName == rasterName)
     if(rasterFile.isDefined) {
@@ -76,10 +75,6 @@ object SVGRasterize {
         System.setErr(prevErrStream)
       }
       for(image <- bufferedImage) { ImageIO.write(image, "png", new File(svgRasterCacheName + "/" + rasterName)) }
-//      if(bufferedImage(0) != null) {
-//        ImageIO.write(bufferedImage(0), "png", new File(svgRasterCacheName + "/" + rasterName))
-//      }
-
       bufferedImage
     }
   }
