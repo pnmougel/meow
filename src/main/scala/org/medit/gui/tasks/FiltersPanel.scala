@@ -21,9 +21,12 @@ object FiltersPanel extends VerticalPanel {
     EntriesPanel.updateDesktopEntries()
   }
 
-  var desktopNames = List("KDE", "GNOME", "Unity")
+  var desktopNames = List("GNOME", "KDE", "Unity")
   val desktopToggles = for(desktopName <- desktopNames) yield {
     val desktopToggle = new BsToggle("Visible in " + desktopName)
+    if(desktopName == "GNOME") {
+      desktopToggle.setSelected(true)
+    }
     desktopToggle.onClick(_ => updateEntries)
     addComponent(desktopToggle)
     (desktopToggle, desktopName)
@@ -34,8 +37,9 @@ object FiltersPanel extends VerticalPanel {
 
     val filterText = EntriesHeader.appNameFilterInput.getText.toLowerCase()
     val containsName = e.getName.toLowerCase().contains(filterText)
+    val isValidExe = e.isValidExec
 
-    val entryVisible = e.isVisible || showHiddenEntries.isSelected
+//    val entryVisible = e.isVisible
     val entryInCategory = !e.isInCategory() || !showOnlyAppInFolder.isSelected
 
     val filterdDesktops = (for(desktopToggle <- desktopToggles; if(desktopToggle._1.isSelected)) yield { desktopToggle._2 }).toList
@@ -43,7 +47,7 @@ object FiltersPanel extends VerticalPanel {
       e.isDisplayedIn(filterdDesktops)
     } else { true }
 
-    entryVisible && containsName && entryInCategory && isInEnvironment
+    (e.isVisible && containsName && entryInCategory && isInEnvironment && isValidExe) || showHiddenEntries.isSelected
   }
 
   addComponent(showHiddenEntries)
