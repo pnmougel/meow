@@ -2,13 +2,13 @@ package org.medit.gui
 
 import java.awt.{Toolkit, BorderLayout, Color, Container}
 import java.awt.event.{WindowAdapter, WindowEvent}
-import java.io.{File, InputStream}
+import java.io.{PrintWriter, File, InputStream}
 import java.lang.System
 import javax.swing.{JDialog, JFrame, JSplitPane, UIManager}
 
 import com.alee.laf.WebLookAndFeel
 import com.alee.laf.splitpane.WebSplitPane
-import org.medit.core.RootAccess
+import org.medit.core.root.{RootAccessServer, RootAccess}
 import org.medit.gui.folders.{FolderPanel}
 import org.medit.gui.entries.{EntriesPanel, EntryDetailsPanel}
 import org.medit.gui.panels.LeftMenu
@@ -73,29 +73,59 @@ object Main extends SinglePID with FontsLoader {
     styles.start()
   }
 
+  def initGUI(): Unit = {
+      WebLookAndFeel.install(true)
+      System.setProperty("awt.useSystemAAFontSettings", "on")
+      System.setProperty("swing.aatext", "true")
+      UIManager.put("Panel.background", Color.white)
+
+      javax.swing.SwingUtilities.invokeLater(new Runnable() {
+        def run() {
+          UIManager.put("Panel.background", Color.white)
+          UIManager.getInstalledLookAndFeels().foreach { laf =>
+            if (laf.getName() == "Nimbus") {
+              UIManager.put("Panel.background", Color.white)
+              UIManager.setLookAndFeel(laf.getClassName());
+            }
+          }
+          JFrame.setDefaultLookAndFeelDecorated(true)
+          JDialog.setDefaultLookAndFeelDecorated(true)
+
+          createAndShowGUI()
+          //        Timer.printTimers()
+        }
+      })
+  }
+
+  /*
   def main(args: Array[String]): Unit = {
     RootAccess.stopServer()
-    WebLookAndFeel.install(true)
-    System.setProperty("awt.useSystemAAFontSettings", "on")
-    System.setProperty("swing.aatext", "true")
-    UIManager.put("Panel.background", Color.white)
+    if(args.length == 3 && args(1) == "admin") {
+      new RootAccessServer(args(2))
+    } else {
+      WebLookAndFeel.install(true)
+      System.setProperty("awt.useSystemAAFontSettings", "on")
+      System.setProperty("swing.aatext", "true")
+      UIManager.put("Panel.background", Color.white)
 
-    javax.swing.SwingUtilities.invokeLater(new Runnable() {
-      def run() {
-        UIManager.put("Panel.background", Color.white)
-        UIManager.getInstalledLookAndFeels().foreach { laf =>
-          if (laf.getName() == "Nimbus") {
-            UIManager.put("Panel.background", Color.white)
-            UIManager.setLookAndFeel(laf.getClassName());
+      javax.swing.SwingUtilities.invokeLater(new Runnable() {
+        def run() {
+          UIManager.put("Panel.background", Color.white)
+          UIManager.getInstalledLookAndFeels().foreach { laf =>
+            if (laf.getName() == "Nimbus") {
+              UIManager.put("Panel.background", Color.white)
+              UIManager.setLookAndFeel(laf.getClassName());
+            }
           }
-        }
-        JFrame.setDefaultLookAndFeelDecorated(true)
-        JDialog.setDefaultLookAndFeelDecorated(true)
+          JFrame.setDefaultLookAndFeelDecorated(true)
+          JDialog.setDefaultLookAndFeelDecorated(true)
 
-        createAndShowGUI()
-//        Timer.printTimers()
-      }
-    })
+          createAndShowGUI()
+          //        Timer.printTimers()
+        }
+      })
+    }
   }
+  */
 }
 
