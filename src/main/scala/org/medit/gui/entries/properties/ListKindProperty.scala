@@ -36,9 +36,7 @@ class ListKindProperty(label: String, fieldKey: String, inputPrompt: String, hel
         e.entry.save()
         updateItems()
       })
-      if(isEditable) {
-        items.add(label, 0)
-      }
+      items.add(label, 0)
     }
     items.doLayout()
     Main.styles.updateComponents()
