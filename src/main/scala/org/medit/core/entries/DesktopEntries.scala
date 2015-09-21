@@ -6,8 +6,7 @@ import scala.collection.mutable.HashSet
 
 object DesktopEntries {
   val home = System.getProperty("user.home")
-//  val desktopEntriePaths = List(s"${home}/.local/share/applications/", "/usr/share/applications")
-  val desktopEntriePaths = List(s"${home}/.local/share/applications/", "/usr/share/applications")
+  val desktopEntriePaths = List(s"$home/.local/share/applications/", "/usr/share/applications")
 
   // List of all desktop entries
   var desktopEntries = List[DesktopEntry]()
@@ -16,7 +15,7 @@ object DesktopEntries {
   // Find all properties
   val propertiesCount = mutable.HashMap[String, Int]()
   val types = mutable.HashSet[String]()
-  for(desktopEntry <- desktopEntries; category <- desktopEntry.categories; property <- category.properties; key <- property.getKey()) {
+  for(desktopEntry <- desktopEntries; category <- desktopEntry.groups; property <- category.properties; key <- property.getKey()) {
     if(!key.endsWith("]")) {
       propertiesCount(key) = propertiesCount.getOrElseUpdate(key, 0) + 1
       if(key == "Type") {
@@ -68,10 +67,9 @@ object DesktopEntries {
   /**
    * Return the list of entries having the category
    */
-  def getEntriesWithCategories(categories: List[String]): List[DesktopEntry] = {
-    val categoriesSet = categories.toSet
+  def getEntriesWithCategories(category: String): List[DesktopEntry] = {
     desktopEntries.filter(entry => {
-      entry.getCategories.exists(categoriesSet.contains(_))
+      entry.getCategories.contains(category)
     })
   }
 }

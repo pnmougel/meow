@@ -46,7 +46,7 @@ class FolderView(val folder: Folder) extends VerticalPanel {
   val addCategoryField = new BsInput()
   addCategoryField.onAdd(newCategory => {
     if (!newCategory.isEmpty) {
-      folder.addCategory(newCategory)
+//      folder.addCategory(newCategory)
       updateCategories()
     }
   })
@@ -64,14 +64,14 @@ class FolderView(val folder: Folder) extends VerticalPanel {
 
   def updateCategories(): Unit = {
     Main.updateContainer(categoriesPanel, () => {
-      for (category <- folder.getCategories) {
-        val categoryLabel = new BsLabel(category, category != folder.name)
-        categoryLabel.onRemove(category => {
-          folder.removeCategory(category)
-          updateCategories()
-        })
-        categoriesPanel.add(categoryLabel)
-      }
+//      for (category <- folder.getCategories) {
+//        val categoryLabel = new BsLabel(category, category != folder.name)
+//        categoryLabel.onRemove(category => {
+//          folder.removeCategory(category)
+//          updateCategories()
+//        })
+//        categoriesPanel.add(categoryLabel)
+//      }
       categoriesPanel.add(addCategoryField)
       categoriesPanel.add(hideButton)
       updateEntries()
@@ -114,7 +114,7 @@ class FolderView(val folder: Folder) extends VerticalPanel {
 
   // Layout the components
   addComponent(topPanel)
-  addComponent(categoriesPanel)
+//  addComponent(categoriesPanel)
   addComponent(hideButton)
   addComponent(entriesPanel)
   addFiller()

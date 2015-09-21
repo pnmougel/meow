@@ -5,64 +5,47 @@ import sys.process.stringSeqToProcess
 import sys.process.stringToProcess
 
 object Folders {
-  var folders = List[Folder]()
 
-  def addFolder(name: String, categories: Seq[String] = List()): Unit = {
-    val curFolders = listFolders()
-    if(!curFolders.contains(name)) {
-      val categoriesStr = if (categories.length == 0) s"['${name}']"
-      else {
-        categories.mkString("['", "', '", "']")
-      }
 
-      val path = s"org.gnome.desktop.app-folders.folder:/org/gnome/desktop/app-folders/folders/${name}/"
-      Seq("gsettings", "set", path, "categories", categoriesStr).!
+  val gConfPath = "/org/gnome/shell/app-folder-categories"
+  val gConfPathNew = "/org/gnome/desktop/app-folders"
+  val foldersStr = s"dconf read $gConfPath".!!
+  val folders = mutable.HashMap[String, Folder]( stringToList(foldersStr).filterNot(_.isEmpty).map(e => (e, new Folder(e))) :_* )
 
-      Seq("gsettings", "set", path, "translate", "true").!
 
-      Seq("gsettings", "set", path, "name", name).!
 
-      val newFolders = name :: curFolders
-      val newFolder = new Folder(name)
-      folders = (newFolder :: folders).sortBy(_.name.toLowerCase())
-      Seq("gsettings", "set", "org.gnome.desktop.app-folders", "folder-children", newFolders.mkString("['", "', '", "']")).!
-
-    }
+  def updateFolders() = {
+    val value = folders.keySet.mkString("['", "', '", "']")
+    println(value)
+    Seq("dconf", "write", s"$gConfPath",  value).!!
+    Seq("dconf", "write", s"$gConfPathNew/folder-children",  value).!!
   }
+
+  def addFolder(name: String): Folder = {
+    println(name)
+    Seq("dconf", "write", s"$gConfPathNew/folders/$name/categories", s"['$name']").!!
+    Seq("dconf", "write", s"$gConfPathNew/folders/$name/translate", "false").!!
+    Seq("dconf", "write", s"$gConfPathNew/folders/$name/name", "'" + name + "'").!!
+    val newFolder = folders.getOrElseUpdate(name, new Folder(name))
+    updateFolders()
+    newFolder
+  }
+
 
   def removeFolder(folder: Folder) = {
-    folders = folders.filter(f => f != folder)
-  }
-
-  /**
-   * Returns the list of Gnome menu folders
-   */
-  def listFolders(): List[String] = {
-    val folders = "gsettings get org.gnome.desktop.app-folders folder-children".!!
-    stringToList(folders)
+    folders.remove(folder.name)
+    Seq("dconf", "reset", "-f",  s"$gConfPathNew/folders/${folder.name}/").!!
+    updateFolders()
   }
 
   def stringToList(str: String): List[String] = {
     str.replaceAll("[\\[\\]']", "").split(",").toList.map(s => s.trim())
   }
 
-  def getAllCategories(): mutable.HashSet[String] = {
-    mutable.HashSet[String]((for (f <- getFolders(); category <- f.categories) yield {
-      category
-    }): _*)
-  }
-
   /**
    * Returns the list of Gnome menu folders
    */
   def getFolders(): List[Folder] = {
-    if (folders.isEmpty) {
-      val folderNamesStr = "gsettings get org.gnome.desktop.app-folders folder-children".!!
-      val folderNames = stringToList(folderNamesStr)
-      folders = folderNames.filter(!_.isEmpty).map(name => {
-        new Folder(name)
-      })
-    }
-    folders.sortBy(_.name.toLowerCase())
+    folders.values.toList.sortBy(_.name.toLowerCase())
   }
 }
