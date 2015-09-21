@@ -1,9 +1,4 @@
-package org.medit.core.entries
-
-import java.io.File
-import scala.io.Source
-import scala.collection.mutable.HashMap
-import scala.Vector
+package org.medit.core.properties
 
 class Property(line: String) {
     val trimedLine = line.trim()

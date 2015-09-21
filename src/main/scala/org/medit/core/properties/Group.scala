@@ -1,11 +1,8 @@
-package org.medit.core.entries
+package org.medit.core.properties
 
-import java.io.File
-import scala.io.Source
 import scala.collection.mutable.HashMap
-import scala.Vector
 
-class Category(name : String = "") {
+class Group(name : String = "") {
     var properties = Vector[Property]()
     var propertyMap = HashMap[String, Property]()
     
