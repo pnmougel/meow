@@ -21,7 +21,6 @@ object IconFinder {
     })
   }
 
-  val validExt = Array("", ".png", ".svg", ".jpg", ".xpm")
   private def loadIcon(nameBase: String, size: Int = 64) : Image = {
     val iconName = nameBase.toLowerCase
     val iconFile = new File(nameBase)
@@ -35,7 +34,18 @@ object IconFinder {
       }
     }
     iconCache.getOrElseUpdate(iconName, {
-      IconLibrary.iconThemes(IconLibrary.iconTheme).getIcon(iconName).getOrElse(missing)
+      val theme = IconLibrary.iconThemes(IconLibrary.iconTheme).find(theme => {
+        theme.getIcon(iconName).isDefined
+      })
+      (for(m <- theme) yield {
+        m.getIcon(iconName).get
+      }).getOrElse(missing)
+//      if(theme.isDefined) {
+//        theme.get.getIcon(iconName).get
+//      } else {
+//        missing
+//      }
+//      IconLibrary.iconThemes(IconLibrary.iconTheme).getIcon(iconName).getOrElse(missing)
     })
   }
 
