@@ -10,6 +10,7 @@ import com.alee.extended.window.{PopOverDirection, WebPopOver}
 import com.alee.laf.label.WebLabel
 import com.alee.laf.panel.WebPanel
 import com.alee.laf.text.WebTextField
+import org.medit.core.entries.DesktopEntry
 import org.medit.core.icons.{IconGenerator, IconLibrary}
 import org.medit.gui.components.HorizontalScrollPane
 import org.medit.gui.utils.SwingEvents._
@@ -18,13 +19,13 @@ import org.medit.gui.utils.{Colors, WrapLayout}
 /**
  * Created by nico on 17/09/15.
  */
-class IconChooser(appName: String, f: (String) => Unit) extends WebPanel(new BorderLayout()) {
+class IconChooser(entry: DesktopEntry, f: (String) => Unit) extends WebPanel(new BorderLayout()) {
 
   val loadingImage = new ImageIcon(IconGenerator.generateIcon("Loading", Colors.gray).getScaledInstance(40, 40, Image.SCALE_SMOOTH))
   val searchField = new WebTextField()
   val topPanel = new WebPanel(new BorderLayout())
   val iconsPanel = new JPanel(new WrapLayout(FlowLayout.LEADING))
-  searchField.setText(appName)
+  searchField.setText(entry.getName)
   searchField.setInputPrompt("Search an icon")
   searchField.setHideInputPromptOnFocus(false)
   searchField.setDrawFocus(false)
@@ -46,7 +47,7 @@ class IconChooser(appName: String, f: (String) => Unit) extends WebPanel(new Bor
   val dimension = new Dimension(280, 230)
   timer.setRepeats(false)
   val b = new EmptyBorder(8, 0, 8, 0)
-  var iconsList = scala.collection.immutable.List[(Int, String)]()
+  var iconsList = scala.collection.immutable.List[String]()
 
   var popOver: Option[WebPopOver] = None
   def setVisible(component: JComponent) = {
@@ -90,7 +91,7 @@ class IconChooser(appName: String, f: (String) => Unit) extends WebPanel(new Bor
     val searchText = searchField.getText
     if (!searchText.isEmpty) {
       iconsPanel.removeAll()
-      iconsList = IconLibrary.searchIcon(searchText)
+      iconsList = IconLibrary.searchIcon(searchText, entry.getIcon.getOrElse(""))
       loadMoreIcons()
 
       if (iconsPanel.getComponentCount == 0) {
@@ -143,7 +144,7 @@ class IconChooser(appName: String, f: (String) => Unit) extends WebPanel(new Bor
 
   scrollPanel.setMargin(8, 0, 8, 0)
   add(scrollPanel, BorderLayout.CENTER)
-  add(new IconGeneratorPanel(appName, this, f), BorderLayout.SOUTH)
+  add(new IconGeneratorPanel(entry.getName, this, f), BorderLayout.SOUTH)
   add(topPanel, BorderLayout.NORTH)
   topPanel.setBackground(Colors.white)
   iconsPanel.setBackground(Colors.white)

@@ -66,7 +66,7 @@ object EntriesPanel extends JPanel(new BorderLayout) {
   val allEntries = DesktopEntries.getDesktopEntries()
   val allEntryViews = allEntries.map(entry => {
     val entryView = new EntryView(entry)
-    entryView.onClick(e => {
+    entryView.imageLabel.get.onClick(e => {
       println(entryView.entry)
       if(isSplitted) {
         merge()

@@ -24,7 +24,7 @@ class IconProperty extends WebLabel with EntryProperty {
 
   this.onClick(event => {
     for(e <- entry; if isEditable) {
-      val iconChooser = new IconChooser(e.entry.getName, newIcon => {
+      val iconChooser = new IconChooser(e.entry, newIcon => {
         e.entry.setValue("Icon", newIcon)
         e.entry.save()
         val newIconImage = IconFinder.getIcon(e.entry.getIcon.getOrElse("NOICON"), 50)
