@@ -34,7 +34,8 @@ object IconFinder {
       }
     }
     iconCache.getOrElseUpdate(iconName, {
-      val theme = IconLibrary.iconThemes(IconLibrary.iconTheme).find(theme => {
+      val themesToSerach = IconLibrary.iconThemes(IconLibrary.iconTheme) ::: IconLibrary.iconThemes(IconLibrary.fallbackTheme)
+      val theme = themesToSerach.find(theme => {
         theme.getIcon(iconName).isDefined
       })
       (for(m <- theme) yield {
