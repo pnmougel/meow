@@ -24,7 +24,7 @@ object Build extends Build {
     "org.apache.xmlgraphics" % "batik-codec" % "1.8",
     "org.apache.xmlgraphics" % "batik-util" % "1.8",
     "com.github.jai-imageio" % "jai-imageio-core" % "1.3.0",
-    "commons-io" % "commons-io" % "2.4",
+//    "commons-io" % "commons-io" % "2.4",
     "org.apache.xmlgraphics" % "batik-svggen" % "1.8",
     "org.jasypt" % "jasypt" % "1.9.2",
     "org.scalaj" %% "scalaj-http" % "1.1.5"

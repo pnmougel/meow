@@ -9,6 +9,7 @@ import java.nio.file.{Files, Paths}
 import java.security.MessageDigest
 
 import org.apache.commons.io.{IOUtils, FilenameUtils, FileUtils}
+import org.medit.core.icons.themes.{IconThemeNoIndex, IconTheme, IconThemeWithIndex}
 import org.medit.gui.utils.Timer2
 import sun.security.provider.MD5
 
@@ -21,35 +22,42 @@ import scala.sys.process.stringSeqToProcess
 object IconLibrary {
   val home = System.getProperty("user.home")
   val pathsForIcons = Seq("/usr/share/icons", "/usr/local/share/icons", s"${home}/.local/share/icons", "/usr/share/pixmaps")
-  val icons = mutable.HashMap[String, AppIcon]()
+//  val icons = mutable.HashMap[String, AppIcon]()
   val gtkTheme = Seq("gsettings", "get", "org.gnome.desktop.interface", "gtk-theme").!!.trim().replaceAllLiterally("'", "")
   val iconTheme = Seq("gsettings", "get", "org.gnome.desktop.interface", "icon-theme").!!.trim().replaceAllLiterally("'", "")
 
-  var iconThemes = mutable.HashMap[String, IconTheme]()
+  var iconThemes = mutable.HashMap[String, List[IconTheme]]()
 
-  val categories = mutable.HashMap[String, mutable.HashSet[AppIcon]]()
+//  val categories = mutable.HashMap[String, mutable.HashSet[AppIcon]]()
   val categoriesList = mutable.HashSet("mimetypes","animations","code","actions","cursors","web","media","stock","text","mimes","categories","form","symbolic","navigation","icons","status-extra","filesystems","apps-extra","image","sources","devices","special","actions-extra","places","data","table","io","object","status","places-extra","chart","emotes","net","intl","emblems","search","apps")
   val allIconsPath = mutable.HashMap[(String, String, String), (Int, String, Boolean)]()
 
-  categories("") = mutable.HashSet[AppIcon]()
-  for(c <- categoriesList) { categories(c) = mutable.HashSet[AppIcon]()}
+//  categories("") = mutable.HashSet[AppIcon]()
+//  for(c <- categoriesList) { categories(c) = mutable.HashSet[AppIcon]()}
   val thumbnailSize = 40
   var curTheme = ""
   var curCategory = ""
-
+  val allThemes = mutable.HashSet[IconTheme]()
   val missingIcons = mutable.HashMap[String, String]()
 
   def explorePath(file: File) : Unit = {
     if(file.exists()) {
       for(theme <- file.listFiles()) {
         val absolutePath = theme.getAbsolutePath
+        val themeName = theme.getName
         if(theme.isDirectory) {
           val themeFile = new File(absolutePath + "/index.theme")
           if(themeFile.isFile) {
-            iconThemes(theme.getName) = new IconTheme(theme, themeFile)
+            val newTheme = new IconThemeWithIndex(theme, themeFile)
+            allThemes.add(newTheme)
+            iconThemes(themeName) = newTheme :: iconThemes.getOrElse(themeName, List[IconTheme]())
+          } else {
+            val newTheme = new IconThemeNoIndex(theme)
+            allThemes.add(newTheme)
+            iconThemes(themeName) = newTheme :: iconThemes.getOrElse(themeName, List[IconTheme]())
           }
         } else {
-          for(n <- List(theme.getName, FilenameUtils.getBaseName(theme.getName))) {
+          for(n <- List(themeName, FilenameUtils.getBaseName(themeName))) {
             missingIcons(n) = absolutePath
           }
         }
@@ -57,6 +65,7 @@ object IconLibrary {
     }
   }
 
+  /*
   def explorePath(curFile: File, level: Int, size: Int, category: String) : Unit = {
     var file = curFile
     var curSize = size
@@ -104,51 +113,68 @@ object IconLibrary {
     if(level == 3) { curCategory = ""}
     if(level == 2) { curSize = -1}
   }
+  */
 
   val digests = new mutable.HashSet[String]
-  def searchIcon(name: String, categorySearched: Option[String] = None, themeSearched: Option[String] = None) : List[(Int, String)] = {
+  def searchIcon(appName: String, curIconName: String) : List[String] = {
     digests.clear()
-    val nameLower = name.toLowerCase.trim()
+    val iconNameMatch = curIconName.toLowerCase.trim()
+    val nameLower = appName.toLowerCase.trim()
     val nameParts = nameLower.split(" ")
 
-    (for (((iconName, iconTheme, iconCategory)) <- allIconsPath.keySet) yield {
-      val (iconSize, iconPath, _) = allIconsPath((iconName, iconTheme, iconCategory))
-      var matchScore = if (iconName == nameLower) 0
-      else if (iconName.startsWith(nameLower)) 1
-      else if (iconName.contains(nameLower)) 2
-      else if (nameParts.exists(n => iconName.contains(n))) 3
-      else -1
-      if(iconSize < 32) matchScore = -1
-      for (c <- categorySearched; if c != iconCategory) matchScore = -1
-      for (c <- themeSearched; if c != iconTheme) matchScore = -1
-      (matchScore, iconPath)
-    }).filter(_._1 != -1).toList.sortWith( (a, b) => {
-      if(a._1 > b._1) { false }
-      else if(a._1 == b._1) { a._2 < b._2 }
-      else true
-    })
+    var iconNameMatchs = List[String]()
+    var appNameMatchs = List[String]()
+    var appNameStartsWithMatchs = List[String]()
+    var appNameContainsMatchs = List[String]()
+    var appNamePartsMatchs = List[String]()
+    for(theme <- allThemes; (iconName, iconPath) <- theme.preferredIcons) yield {
+      if(iconNameMatch == iconName) { iconNameMatchs = iconPath :: iconNameMatchs }
+      else if (iconName == nameLower) { appNameMatchs = iconPath :: appNameMatchs }
+      else if (iconName.startsWith(nameLower)) { appNameStartsWithMatchs = iconPath :: appNameStartsWithMatchs }
+      else if (iconName.contains(nameLower)) { appNameContainsMatchs = iconPath :: appNameContainsMatchs }
+      else if (nameParts.exists(n => iconName.contains(n))) { appNamePartsMatchs = iconPath :: appNamePartsMatchs }
+    }
+    iconNameMatchs ::: appNameMatchs ::: appNameStartsWithMatchs ::: appNameContainsMatchs ::: appNamePartsMatchs
+//
+//    (for (((iconName, iconTheme, iconCategory)) <- allIconsPath.keySet) yield {
+//      val (iconSize, iconPath, _) = allIconsPath((iconName, iconTheme, iconCategory))
+//      var matchScore = if (iconName == nameLower) 0
+//      else if (iconName.startsWith(nameLower)) 1
+//      else if (iconName.contains(nameLower)) 2
+//      else if (nameParts.exists(n => iconName.contains(n))) 3
+//      else -1
+//      if(iconSize < 32) matchScore = -1
+//      for (c <- categorySearched; if c != iconCategory) matchScore = -1
+//      for (c <- themeSearched; if c != iconTheme) matchScore = -1
+//      (matchScore, iconPath)
+//    }).filter(_._1 != -1).toList.sortWith( (a, b) => {
+//      if(a._1 > b._1) { false }
+//      else if(a._1 == b._1) { a._2 < b._2 }
+//      else true
+//    })
   }
 
-  def loadNextImages(icons: List[(Int, String)], n: Int) : (List[LazyIconLoader], List[(Int, String)]) = {
+  def loadNextImages(icons: List[String], n: Int) : (List[LazyIconLoader], List[String]) = {
     val (l1, l2) = icons.splitAt(n)
     (l1.map( e => {
-      val file = new File(e._2)
+      val file = new File(e)
       val md = MessageDigest.getInstance("MD5")
       val hash = new BigInteger(md.digest(FileUtils.readFileToByteArray(file))).toString
       val isAlreadyFound = digests.contains(hash)
       digests.add(hash)
-      (e._1, e._2, isAlreadyFound)
-    }).filterNot(_._3).map(e => {
-      new LazyIconLoader(e._2, thumbnailSize)
+      (e, isAlreadyFound)
+    }).filterNot(_._2).map(e => {
+      new LazyIconLoader(e._1, thumbnailSize)
     }), l2)
   }
 
 
   Timer2.startTimer("Explore1")
   for (path <- pathsForIcons) { explorePath(new File(path)) }
+  for(themes <- iconThemes.values; theme <- themes) { theme.buildInheritedThemes}
   Timer2.stopTimer("Explore1")
-  Timer2.startTimer("Explore2")
-  for (path <- pathsForIcons) { explorePath(new File(path), 0, -1, "") }
-  Timer2.stopTimer("Explore2")
+//  Timer2.startTimer("Explore2")
+//  for (path <- pathsForIcons) { explorePath(new File(path), 0, -1, "") }
+//  Timer2.stopTimer("Explore2")
   Timer2.printTimers()
 }
