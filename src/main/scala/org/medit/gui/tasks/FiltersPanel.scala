@@ -3,6 +3,7 @@ package org.medit.gui.tasks
 import org.medit.core.Folders
 import org.medit.core.entries.DesktopEntries
 import org.medit.gui.components.{BsToggle}
+import org.medit.gui.entries.filters._
 import org.medit.gui.entries.{EntryView, EntriesHeader, EntriesPanel}
 import org.medit.gui.panels.VerticalPanel
 import org.medit.gui.utils.SwingEvents._
@@ -11,46 +12,32 @@ import org.medit.gui.utils.SwingEvents._
  * Created by nico on 15/09/15.
  */
 object FiltersPanel extends VerticalPanel {
-  val showHiddenEntries = new BsToggle("Show hidden applications")
-  showHiddenEntries.onClick(_ => updateEntries)
-
-  val showOnlyAppInFolder = new BsToggle("Hide app in a folder")
-  showOnlyAppInFolder.onClick(_ => updateEntries)
-
-  def updateEntries = {
-    EntriesPanel.updateDesktopEntries()
+  val gnomeFilter = new DesktopFilter("GNOME", true)
+  val unityFilter = new DesktopFilter("Unity")
+  val kdeFilter = new DesktopFilter("KDE")
+  val showAllAppFilter = new ShowAllAppFilter
+  val showHiddenAppFilter = new ShowHiddenAppFilter
+  val hideAppInFolderFilter = new HideAppInFolderFilter
+  val filters = List[EntryFilter](gnomeFilter, unityFilter, kdeFilter, showAllAppFilter, showHiddenAppFilter, hideAppInFolderFilter)
+  for(filter <- filters; if(filter != hideAppInFolderFilter)) {
+    filter.unSelect = filters.filter(_ != filter)
   }
 
-  var desktopNames = List("GNOME", "KDE", "Unity")
-  val desktopToggles = for(desktopName <- desktopNames) yield {
-    val desktopToggle = new BsToggle("Visible in " + desktopName)
-    if(desktopName == "GNOME") {
-      desktopToggle.setSelected(true)
+  def isAppVisible(entry: EntryView, useNameFilter : Boolean = true): Boolean = {
+    var isVisible = true
+    for(filter <- filters) {
+      isVisible = isVisible & filter.isVisible(entry)
     }
-    desktopToggle.onClick(_ => updateEntries)
-    addComponent(desktopToggle)
-    (desktopToggle, desktopName)
+
+    if(useNameFilter) {
+      val filterText = EntriesHeader.appNameFilterInput.getText.toLowerCase()
+      isVisible = isVisible && entry.entry.getName.toLowerCase().contains(filterText)
+    }
+    isVisible
   }
 
-  def isAppVisible(entry: EntryView): Boolean = {
-    val e = entry.entry
-
-    val filterText = EntriesHeader.appNameFilterInput.getText.toLowerCase()
-    val containsName = e.getName.toLowerCase().contains(filterText)
-    val isValidExe = e.isValidExec
-
-//    val entryVisible = e.isVisible
-    val entryInCategory = !e.isInCategory() || !showOnlyAppInFolder.isSelected
-
-    val filterdDesktops = (for(desktopToggle <- desktopToggles; if(desktopToggle._1.isSelected)) yield { desktopToggle._2 }).toList
-    val isInEnvironment = if(!filterdDesktops.isEmpty) {
-      e.isDisplayedIn(filterdDesktops)
-    } else { true }
-
-    (e.isVisible && containsName && entryInCategory && isInEnvironment && isValidExe) || showHiddenEntries.isSelected
+  for(filter <- filters) {
+    addComponent(filter.toggle)
   }
-
-  addComponent(showHiddenEntries)
-  addComponent(showOnlyAppInFolder)
   addFiller()
 }

@@ -1,21 +1,20 @@
 package org.medit.gui.entries.properties
 
-import java.awt.FlowLayout
+import java.awt.{BorderLayout, FlowLayout}
+import javax.swing.JPanel
 
 import com.alee.laf.panel.WebPanel
 import com.alee.laf.text.WebTextField
 import org.medit.gui.components.{BsHiddenInput, BsLabel}
-import org.medit.gui.entries.EntryView
+import org.medit.gui.entries.{EntriesPanel, EntryView}
 import org.medit.gui.utils.SwingEvents._
 import org.medit.gui.utils.{InputBorder, WrapLayout}
 
 /**
  * Created by nico on 16/09/15.
  */
-class ExecProperty extends WebPanel(new FlowLayout(FlowLayout.LEADING)) with EntryProperty {
+class ExecProperty extends JPanel(new FlowLayout(FlowLayout.LEADING)) with EntryProperty {
   val execInput = new BsHiddenInput()
-  val typeField = new BsLabel("App", false)
-//  execInput.setBorder(new InputBorder())
   execInput.setInputPrompt("Program or url")
   execInput.onKeyRelease(e => {
     val newExec = execInput.getText
@@ -29,14 +28,18 @@ class ExecProperty extends WebPanel(new FlowLayout(FlowLayout.LEADING)) with Ent
     }
   })
 
-  add(typeField, 0)
-  add(execInput, 1)
+//  add(typeField, 0)
+  add(execInput, 0)
 
   override def setEntry(newEntry: EntryView) = {
     isEditable = newEntry.entry.isEditable
     entry = Some(newEntry)
     for(prop <- newEntry.entry.getValue("Exec")) {
 //      execInput.setColumns(prop.size)
+
+      // Compute maximum text size
+      execInput.setColumns((EntriesPanel.getWidth * 0.5 / 12).toInt)
+
       execInput.setText(prop)
       execInput.setEditable(isEditable)
     }

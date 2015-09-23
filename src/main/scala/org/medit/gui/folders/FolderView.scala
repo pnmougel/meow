@@ -1,20 +1,18 @@
 package org.medit.gui.folders
 
 import java.awt._
-import java.awt.dnd.DnDConstants
-import java.awt.dnd.DragSource
 import com.alee.laf.panel.WebPanel
+import com.alee.managers.language.data.TooltipWay
+import com.alee.managers.tooltip.TooltipManager
 import org.medit.core.Folder
 import org.medit.gui.Main
 import org.medit.gui.components.BsInput
-import org.medit.gui.components.BsLabel
 import org.medit.gui.panels._
 import org.medit.gui.entries._
 import org.medit.gui.utils.SwingEvents.convertComponent
-import org.medit.gui.utils.{Colors, WrapLayout, Icon}
-import org.medit.gui.utils.dnd.DragEntryGesture
+import org.medit.gui.utils.{FontAwesome, Colors, WrapLayout, Icon}
+import org.medit.gui.utils.dnd._
 import javax.swing.{Box, BoxLayout, JLabel, JPanel}
-import org.medit.gui.utils.dnd.MyDropTargetListener
 import com.alee.laf.label.WebLabel
 
 class FolderView(val folder: Folder) extends VerticalPanel {
@@ -31,9 +29,12 @@ class FolderView(val folder: Folder) extends VerticalPanel {
     toggleDisplayEntries()
   })
 
-  val hideButton = new WebLabel("Remove the folder", Icon.get("cross", 12))
-  hideButton.setMargin(5)
+  val hideButton = new WebLabel(FontAwesome.faTimes)
+  hideButton.setFont(FontAwesome.font(16))
+  hideButton.setForeground(Colors.red)
+  hideButton.setMargin(0, 12, 0, 12)
   hideButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
+  TooltipManager.addTooltip(hideButton, "Remove the folder", TooltipWay.down, 0)
   hideButton.setVisible(false)
   hideButton.onClick(e => {
     folder.hide()
@@ -46,34 +47,30 @@ class FolderView(val folder: Folder) extends VerticalPanel {
   val addCategoryField = new BsInput()
   addCategoryField.onAdd(newCategory => {
     if (!newCategory.isEmpty) {
-//      folder.addCategory(newCategory)
       updateCategories()
     }
   })
 
-  def updateTopPanel() = Main.updateContainer(topPanel, () => {
+
+  val smallAppContainer = new JPanel(new FlowLayout(FlowLayout.TRAILING))
+  smallAppContainer.setBackground(null)
+  def updateTopPanel() = Main.updateContainer(smallAppContainer, () => {
     for (entry <- folder.getDesktopEntries().take(5)) {
       val entryView = new EntryView(entry, 25, false, Some(this))
+      val transferHandler = new EntryDragHandler[EntryWithinFolder](entryView.imageLabel, new EntryWithinFolder(entry, this), TransferDataFlavor.entryInFolderFlavor)
+      entryView.imageLabel.setTransferHandler(transferHandler)
       entryView.setVisible(entry.isVisible)
-      topPanel.add(Box.createHorizontalStrut(5), 0)
-      topPanel.add(entryView, 0)
+      smallAppContainer.add(entryView)
     }
-    topPanel.add(Box.createHorizontalGlue(), 0)
-    topPanel.add(label, 0)
   })
+  topPanel.add(smallAppContainer, 0)
+  topPanel.add(hideButton, 0)
+  topPanel.add(Box.createHorizontalGlue(), 0)
+  topPanel.add(label, 0)
 
   def updateCategories(): Unit = {
     Main.updateContainer(categoriesPanel, () => {
-//      for (category <- folder.getCategories) {
-//        val categoryLabel = new BsLabel(category, category != folder.name)
-//        categoryLabel.onRemove(category => {
-//          folder.removeCategory(category)
-//          updateCategories()
-//        })
-//        categoriesPanel.add(categoryLabel)
-//      }
       categoriesPanel.add(addCategoryField)
-      categoriesPanel.add(hideButton)
       updateEntries()
       updateTopPanel()
     })
@@ -81,6 +78,7 @@ class FolderView(val folder: Folder) extends VerticalPanel {
 
   def toggleDisplayEntries() = {
     val isVisible = entriesPanel.isVisible()
+    smallAppContainer.setVisible(isVisible)
     entriesPanel.setVisible(!isVisible)
     categoriesPanel.setVisible(!isVisible)
     hideButton.setVisible(!isVisible)
@@ -94,11 +92,9 @@ class FolderView(val folder: Folder) extends VerticalPanel {
     Main.updateContainer(entriesPanel, () => {
       for (entry <- folder.getDesktopEntries()) {
         val entryView = new EntryView(entry, 40, false, Some(this))
+        val transferHandler = new EntryDragHandler[EntryWithinFolder](entryView.imageLabel, new EntryWithinFolder(entry, this), TransferDataFlavor.entryInFolderFlavor)
+        entryView.imageLabel.setTransferHandler(transferHandler)
         entryView.setVisible(entry.isVisible)
-
-        val ds = new DragSource()
-        ds.createDefaultDragGestureRecognizer(entryView, DnDConstants.ACTION_COPY, new DragEntryGesture())
-
         entriesPanel.add(entryView)
       }
     })
@@ -114,22 +110,8 @@ class FolderView(val folder: Folder) extends VerticalPanel {
 
   // Layout the components
   addComponent(topPanel)
-//  addComponent(categoriesPanel)
-  addComponent(hideButton)
   addComponent(entriesPanel)
   addFiller()
 
-  // The drop target should be added at the end
-  val dropTargetListener = new MyDropTargetListener(this)
-  dropTargetListener.onDropEntry { entry =>
-    // If it is from another folder, remove the entry from the previous folder
-    for(from <- entry.sourceFolder) {
-      entry.removeCategory(from.folder.name)
-      from.updateCategories()
-    }
-    entry.addCategory(folder.name)
-    entry.save()
-    updateCategories()
-    entry.sourceFolder = None
-  }
+  setTransferHandler(new EntryDropHandler(Some(this)))
 }

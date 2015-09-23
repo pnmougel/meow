@@ -10,7 +10,7 @@ import java.security.MessageDigest
 
 import org.apache.commons.io.{IOUtils, FilenameUtils, FileUtils}
 import org.medit.core.icons.themes.{IconThemeNoIndex, IconTheme, IconThemeWithIndex}
-import org.medit.gui.utils.Timer2
+import org.medit.core.utils.GlobalPaths
 import sun.security.provider.MD5
 
 import scala.collection.mutable
@@ -20,8 +20,7 @@ import scala.sys.process.stringSeqToProcess
  * Created by nico on 17/09/15.
  */
 object IconLibrary {
-  val home = System.getProperty("user.home")
-  val pathsForIcons = Seq("/usr/share/icons", "/usr/local/share/icons", s"${home}/.local/share/icons", "/usr/share/pixmaps")
+
   val iconTheme = Seq("gsettings", "get", "org.gnome.desktop.interface", "icon-theme").!!.trim().replaceAllLiterally("'", "")
   val fallbackTheme = "hicolor"
 
@@ -53,6 +52,30 @@ object IconLibrary {
         }
       }
     }
+  }
+
+  def getSingleIconPath(appName: String) : Option[String] = {
+    val name = appName.toLowerCase.trim
+    var iconPathMatch : Option[String] = None
+    val themesToSearch = IconLibrary.iconThemes(IconLibrary.iconTheme) ::: IconLibrary.iconThemes(IconLibrary.fallbackTheme)
+    // Try to find an icon available in the current theme
+    themesToSearch.find( theme => {
+      if(theme.preferredIcons.contains(name)) {
+        iconPathMatch = Some(name)
+      }
+      theme.preferredIcons.contains(name)
+    })
+
+    // Otherwise search an icon in another theme and return the full path
+    iconPathMatch.orElse({
+      allThemes.find( theme => {
+        if(theme.preferredIcons.contains(name)) {
+          iconPathMatch = Some(theme.preferredIcons(name))
+        }
+        theme.preferredIcons.contains(name)
+      })
+      iconPathMatch
+    })
   }
 
 
@@ -93,7 +116,7 @@ object IconLibrary {
   }
 
   // Perform the icon lookup
-  for (path <- pathsForIcons) { explorePath(new File(path)) }
+  for (path <- GlobalPaths.pathsForIcons) { explorePath(new File(path)) }
   for (theme <- allThemes) { theme.buildInheritedThemes}
 
   /*

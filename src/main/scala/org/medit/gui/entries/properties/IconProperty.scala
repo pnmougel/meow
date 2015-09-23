@@ -29,9 +29,7 @@ class IconProperty extends WebLabel with EntryProperty {
         e.entry.save()
         val newIconImage = IconFinder.getIcon(e.entry.getIcon.getOrElse("NOICON"), 50)
         setIcon(newIconImage)
-        for(i <- e.imageLabel) {
-          i.setIcon(IconFinder.getIcon(e.entry.getIcon.getOrElse("NOICON"), 70))
-        }
+        e.imageLabel.setIcon(IconFinder.getIcon(e.entry.getIcon.getOrElse("NOICON"), 70))
       })
       iconChooser.setVisible(this)
     }

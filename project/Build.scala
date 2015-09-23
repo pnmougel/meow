@@ -27,7 +27,9 @@ object Build extends Build {
 //    "commons-io" % "commons-io" % "2.4",
     "org.apache.xmlgraphics" % "batik-svggen" % "1.8",
     "org.jasypt" % "jasypt" % "1.9.2",
-    "org.scalaj" %% "scalaj-http" % "1.1.5"
+    "org.scalaj" %% "scalaj-http" % "1.1.5",
+    "org.jclarion" % "image4j" % "0.7",
+    "org.jsoup" % "jsoup" % "1.8.3"
   )
 
   lazy val root = Project(id = "root", base = file("."))
@@ -79,6 +81,18 @@ object Build extends Build {
       linuxPackageMappings in Debian += {
         val file = sourceDirectory.value / "debian" / "copyright"
         packageMapping((file, s"/usr/share/doc/${name.value}/copyright")) withPerms "0644" asDocs()
+      },
+      linuxPackageMappings in Debian += {
+        val file = sourceDirectory.value / "debian" / "meow.desktop"
+        packageMapping((file, s"/usr/local/share/applications/meow.desktop")) withPerms "0644" asDocs()
+      },
+      linuxPackageMappings in Debian += {
+        val file = sourceDirectory.value / "debian" / "meow.png"
+        packageMapping((file, s"/usr/local/share/icons/meow.png")) withPerms "0644" asDocs()
+      },
+      linuxPackageMappings in Debian += {
+        val file = sourceDirectory.value / "debian" / "meow.svg"
+        packageMapping((file, s"/usr/local/share/icons/meow.svg")) withPerms "0644" asDocs()
       }
     )
 }

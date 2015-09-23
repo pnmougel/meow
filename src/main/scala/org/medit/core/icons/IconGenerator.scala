@@ -49,7 +49,7 @@ object IconGenerator {
     val domImpl = GenericDOMImplementation.getDOMImplementation()
     val document = domImpl.createDocument("http://www.w3.org/2000/svg", "svg", null)
     val svgGenerator = new SVGGraphics2D(document)
-    svgGenerator.setSVGCanvasSize(new Dimension(256, 256))
+    svgGenerator.setSVGCanvasSize(new Dimension(512, 512))
     paint(svgGenerator, color, text)
     svgGenerator.stream(new FileWriter(out), false)
   }
@@ -60,6 +60,32 @@ object IconGenerator {
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
     val roundSize = 32
 
+    g.setPaint(color)
+    g.fillRoundRect(20, 20, size - 41, size - 41, roundSize, roundSize)
+    val stringToWrite = text.charAt(0).toUpper.toString
+    val curFont = g.getFont.deriveFont(Font.BOLD, 128)
+    g.setFont(curFont)
+//    val metrics = g.getFontMetrics(g.getFont.deriveFont(Font.PLAIN, 128))
+    val textTl = new TextLayout(stringToWrite, curFont, g.getFontRenderContext)
+
+    val w = textTl.getBounds.getWidth
+    val h = textTl.getBounds.getHeight
+//    val x = (size - metrics.stringWidth(stringToWrite)) / 2
+//    val y = curFont.getSize + (size - curFont.getSize) / 2 - 20
+    val x = ((size - w) / 2).toInt - 5
+    val y = (h + (size - h) / 2).toInt
+    val transform = new AffineTransform()
+    transform.translate(x, y)
+    val textShape = textTl.getOutline(transform)
+    g.setColor(Colors.white)
+    g.setPaint(Colors.white)
+    g.fill(textShape)
+    g.setPaint(color.darker())
+    g.setColor(color.darker())
+    g.draw(textShape)
+
+    //    g.drawString(stringToWrite, x, y)
+    /*
     val r = roundSize / 2
     val shadowShape = new GeneralPath()
 
@@ -120,6 +146,7 @@ object IconGenerator {
         g.fill(textShape)
       }
     }
+    */
     g.dispose()
   }
 }

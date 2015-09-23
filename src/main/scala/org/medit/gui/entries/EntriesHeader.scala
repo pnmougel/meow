@@ -8,7 +8,7 @@ import com.alee.laf.panel.WebPanel
 import com.alee.laf.text.WebTextField
 import org.medit.core.root.RootAccess
 import org.medit.gui.utils.SwingEvents._
-import org.medit.gui.utils.{Icon, WrapLayout}
+import org.medit.gui.utils.{EventsSystem, Icon, WrapLayout}
 
 /**
  * @author nico
@@ -16,7 +16,7 @@ import org.medit.gui.utils.{Icon, WrapLayout}
 object EntriesHeader extends WebPanel(new BorderLayout()) {
   val appNameFilterInput = new WebTextField(25)
   appNameFilterInput.onKeyRelease(_ => {
-    EntriesPanel.updateDesktopEntries()
+    EventsSystem.triggerEvent(EventsSystem.entriesListUpdated)
   })
   appNameFilterInput.setDrawFocus(false)
   appNameFilterInput.setName("app-name-filter")
@@ -31,15 +31,18 @@ object EntriesHeader extends WebPanel(new BorderLayout()) {
   rootAccess.onClick(e => {
     if(RootAccess.isRootEnabled) {
       RootAccess.stopServer()
-      rootAccess.setIcon(lockIcon)
     } else {
       RootAccess.getRootAccess
-      rootAccess.setIcon(unlockIcon)
     }
-//    rootAccess.setIcon(if(RootAccess.isRootEnabled) unlockIcon else lockIcon)
   })
   rootAccess.setMargin(0, 0, 0, 10)
 
+  EventsSystem.on(EventsSystem.rootLocked, _ => {
+    rootAccess.setIcon(lockIcon)
+  })
+  EventsSystem.on(EventsSystem.rootUnlocked, _ => {
+    rootAccess.setIcon(unlockIcon)
+  })
 
   setBackground(Color.white)
   setMargin(20, 25, 15, 10)

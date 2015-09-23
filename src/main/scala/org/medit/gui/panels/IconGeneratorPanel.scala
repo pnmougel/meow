@@ -10,6 +10,7 @@ import com.alee.laf.label.WebLabel
 import com.alee.laf.panel.WebPanel
 import com.alee.managers.popup.WebPopup
 import org.medit.core.icons.IconGenerator
+import org.medit.core.utils.FileUtils
 import org.medit.gui.components.BsHiddenInput
 import org.medit.gui.utils.Colors
 import org.medit.gui.utils.SwingEvents._
@@ -18,21 +19,23 @@ class IconGeneratorPanel(appName: String, chooser: IconChooser, f: (String) => U
   setBackground(Colors.white)
 
   def saveIcon() : String = {
-    val baseName = if(iconText.getText().isEmpty) "empty" else iconText.getText().replaceAll(" ", "-").replaceAll("/", "_")
-    val home = System.getProperty("user.home")
-    val basePath = s"${home}/.local/share/icons/meow/"
-    val baseDirFile = new File(basePath)
-    if(!baseDirFile.exists()) {
-      baseDirFile.mkdirs()
-    }
-    var curPath = basePath + baseName + ".png"
-    var i = 0
-    while(new File(curPath).exists()) {
-      i += 1
-      curPath = basePath + baseName + "-" + i + ".png"
-    }
-    ImageIO.write(curImage, "png", new File(curPath))
-    curPath
+    val iconName = if(iconText.getText().isEmpty) "empty" else iconText.getText()
+    FileUtils.saveIcon(iconName, curImage)
+//    val baseName = if(iconText.getText().isEmpty) "empty" else iconText.getText().replaceAll(" ", "-").replaceAll("/", "_")
+//    val home = System.getProperty("user.home")
+//    val basePath = s"${home}/.local/share/icons/meow/"
+//    val baseDirFile = new File(basePath)
+//    if(!baseDirFile.exists()) {
+//      baseDirFile.mkdirs()
+//    }
+//    var curPath = basePath + baseName + ".png"
+//    var i = 0
+//    while(new File(curPath).exists()) {
+//      i += 1
+//      curPath = basePath + baseName + "-" + i + ".png"
+//    }
+//    ImageIO.write(curImage, "png", new File(curPath))
+//    curPath
   }
 
   val iconItem = new WebLabel()
@@ -43,8 +46,10 @@ class IconGeneratorPanel(appName: String, chooser: IconChooser, f: (String) => U
     }
     f(saveIcon())
   })
-  val nbColors = 16
-  val colors = Colors.getColors(nbColors, 75, 200)
+//  val nbColors = 16
+  // val colors = Colors.getColors(nbColors, 75, 200)
+  val nbColors = 10
+  val colors = Colors.flatDesignColors
   var curColor = colors(0)
 
   val iconText = new BsHiddenInput()

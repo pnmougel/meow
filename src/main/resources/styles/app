@@ -128,3 +128,7 @@
 .no-icon-found {
     font: 13 plain Roboto;
 }
+
+.margin-top {
+    padding: 3 0 0 0;
+}

@@ -11,7 +11,7 @@ import scala.io.Source
  */
 trait FontsLoader {
   val ge = GraphicsEnvironment.getLocalGraphicsEnvironment()
-  val fonts = List("HelveticaNeue", "Roboto-Regular", "Roboto-Thin", "Roboto-Light", "Roboto-Black", "Roboto-Bold", "Roboto-Medium")
+  val fonts = List("HelveticaNeue", "Roboto-Regular", "Roboto-Thin", "Roboto-Light", "Roboto-Black", "Roboto-Bold", "Roboto-Medium", "fontawesome-webfont")
   for (fontName <- fonts) {
     val fontFile = Main.getClass.getResourceAsStream(s"/fonts/${fontName}.ttf")
     if (fontFile != null) {

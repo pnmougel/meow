@@ -14,6 +14,10 @@ class BsLabel(label: String, isRemovable: Boolean = true) extends RoundedPanel {
   l.setName("BsLabelContent")
   add(l, BorderLayout.CENTER)
 
+  def setText(text: String): Unit = {
+    l.setText(text)
+  }
+
   val removeButton = new JLabel("x")
   removeButton.setForeground(Color.decode("#777777"))
   removeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))

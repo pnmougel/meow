@@ -1,18 +1,20 @@
 package org.medit.gui.entries
 
 import java.awt._
+import java.awt.event.ActionEvent
 import javax.swing.JPanel
 
 import com.alee.laf.label.WebLabel
 import com.alee.laf.scroll.{WebScrollBar, WebScrollPane}
-import org.medit.core.entries.DesktopEntries
+import org.medit.core.entries.{DesktopEntry, DesktopEntries}
 import org.medit.gui.components.{HorizontalScrollPane}
 import org.medit.gui.panels.VerticalPanel
 import org.medit.gui.tasks.FiltersPanel
 import org.medit.gui.utils.SwingEvents._
-import org.medit.gui.utils.{WrapLayout}
-import org.medit.gui.utils.dnd.MyDropTargetListener
+import org.medit.gui.utils.{EventsSystem, WrapLayout}
+import org.medit.gui.utils.dnd.{TransferDataFlavor, EntryDragHandler, EntryDropHandler}
 import scala.collection.JavaConversions._
+import scala.sys.process.stringToProcess
 
 object EntriesPanel extends JPanel(new BorderLayout) {
   val noApplicationLabel = new WebLabel("No applications to display")
@@ -20,6 +22,7 @@ object EntriesPanel extends JPanel(new BorderLayout) {
   noApplicationLabel.setVisible(false)
 
   setBackground(null)
+
   val entryList = new JPanel(new WrapLayout(FlowLayout.LEADING))
   val entryList2 = new JPanel(new WrapLayout(FlowLayout.LEADING))
   entryList2.setBackground(Color.white)
@@ -66,13 +69,23 @@ object EntriesPanel extends JPanel(new BorderLayout) {
   val allEntries = DesktopEntries.getDesktopEntries()
   val allEntryViews = allEntries.map(entry => {
     val entryView = new EntryView(entry)
-    entryView.imageLabel.get.onClick(e => {
-      println(entryView.entry)
-      if(isSplitted) {
-        merge()
-      } else {
-        splitInTwo(entryView)
-        EntryDetailsPanel.setEntry(entryView)
+    val transferHandler = new EntryDragHandler[DesktopEntry](entryView.imageLabel, entry, TransferDataFlavor.entryFlavor)
+    entryView.imageLabel.setTransferHandler(transferHandler)
+    entryView.imageLabel.onClick(e => {
+      if((e.getModifiers() & ActionEvent.CTRL_MASK) != ActionEvent.CTRL_MASK) {
+        if(e.getClickCount == 1) {
+          println(entryView.entry)
+          if(isSplitted) {
+            merge()
+          } else {
+            splitInTwo(entryView)
+            EntryDetailsPanel.setEntry(entryView)
+          }
+        } else if(e.getClickCount == 2) {
+          for(cmd <- entry.getValue("Exec")) {
+            cmd.run()
+          }
+        }
       }
     })
     entryList.add(entryView)
@@ -102,6 +115,9 @@ object EntriesPanel extends JPanel(new BorderLayout) {
   add(EntriesHeader, BorderLayout.NORTH)
   add(scrollPane)
 
+  EventsSystem.on(EventsSystem.entriesListUpdated, _ => {
+    updateDesktopEntries()
+  })
   def updateDesktopEntries() = {
     merge()
     var atLeastOneApplicationToDisplay = false
@@ -113,14 +129,5 @@ object EntriesPanel extends JPanel(new BorderLayout) {
     noApplicationLabel.setVisible(!atLeastOneApplicationToDisplay)
   }
 
-  val dropTargetListener = new MyDropTargetListener(entryList)
-  dropTargetListener.onDropEntry { entry =>
-    // If it is from another folder, remove the entry from the previous folder
-    for (from <- entry.sourceFolder) {
-      entry.removeCategory(from.folder.name)
-      from.updateCategories()
-    }
-    entry.save()
-    entry.sourceFolder = None
-  }
+  setTransferHandler(new EntryDropHandler())
 }

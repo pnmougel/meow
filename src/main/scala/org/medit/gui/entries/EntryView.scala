@@ -2,6 +2,7 @@ package org.medit.gui.entries
 
 import java.awt._
 import java.awt.dnd.{DnDConstants, DragSource}
+import java.awt.event.{ActionEvent, MouseEvent}
 import javax.swing.{JRootPane, JPanel}
 
 import com.alee.extended.window.{PopOverDirection, WebPopOver}
@@ -11,15 +12,11 @@ import com.alee.managers.tooltip.TooltipManager
 import org.medit.core.entries.DesktopEntry
 import org.medit.core.icons.IconFinder
 import org.medit.gui.folders.FolderView
-import org.medit.gui.utils.MultilineLabelAutoFit
-import org.medit.gui.utils.dnd.DragEntryGesture
+import org.medit.gui.utils.{EventsSystem, Colors, MultilineLabelAutoFit}
+import org.medit.gui.utils.dnd.{EntryDropHandler, EntryDragHandler}
 import org.medit.gui.utils.SwingEvents._
 
-class EntryView(val entry: DesktopEntry, iconSize: Int = 140, showLabel: Boolean = true, val folder: Option[FolderView] = None) extends WebLabel {
-  setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
-  val ds = new DragSource()
-  ds.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY_OR_MOVE, new DragEntryGesture())
-
+class EntryView(val entry: DesktopEntry, iconSize: Int = 140, showLabel: Boolean = true, val folder: Option[FolderView] = None) extends JPanel(new BorderLayout()) {
   val maxTextWidth = iconSize - 5
 
   val dimension = if (showLabel) {
@@ -31,27 +28,34 @@ class EntryView(val entry: DesktopEntry, iconSize: Int = 140, showLabel: Boolean
   setBackground(null)
   val iconName = entry.getIcon.getOrElse("NOICON")
 
-  val textLabel = new MultilineLabelAutoFit(entry.getName, iconSize, 45)
+  val textLabel = new MultilineLabelAutoFit(entry, iconSize, 45)
   textLabel.setName("entry-name-label")
 
-  var imageLabel : Option[WebLabel] = None
+  val imageLabel = new WebLabel()
+  imageLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))
 
-  if (showLabel) {
-    val imageLabel = new WebLabel(IconFinder.getIcon(iconName, iconSize - 70))
-    this.imageLabel = Some(imageLabel)
-    val labelPanel = new JPanel()
-    labelPanel.setBackground(null)
-    labelPanel.add(textLabel)
-    labelPanel.setBounds(0, iconSize - 65, iconSize, iconSize + 30)
-    add(labelPanel)
+  val image = if (showLabel) {
+    val imagePanel = new JPanel()
+    imagePanel.setBackground(Colors.white)
+    imagePanel.add(imageLabel)
+    add(imagePanel)
 
-    imageLabel.setBounds(0, -30, iconSize, iconSize)
-    setBounds(0, -20, iconSize, iconSize)
-    add(imageLabel)
+    imageLabel.onClick(e => {
+      if((e.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK && entry.isEditable) {
+        entry.setVisible(entry.isVisible)
+        entry.save()
+        EventsSystem.triggerEvent(EventsSystem.entriesListUpdated)
+      }
+    })
+
+    add(textLabel, BorderLayout.SOUTH)
+    IconFinder.getIconLoader(iconName, iconSize - 70, imageLabel)
   } else {
-    // TOCHANGE
-    setIcon(IconFinder.getIconLoader(iconName, iconSize, this))
-    TooltipManager.addTooltip(this, entry.getName, TooltipWay.down, 0)
+    add(imageLabel)
+    TooltipManager.addTooltip(imageLabel, entry.getName, TooltipWay.down, 0)
+    IconFinder.getIconLoader(iconName, iconSize, imageLabel)
   }
+  imageLabel.setIcon(image)
+
 }
 

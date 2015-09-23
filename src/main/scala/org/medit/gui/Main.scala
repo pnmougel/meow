@@ -1,5 +1,6 @@
 package org.medit.gui
 
+import java.awt.dnd.{DragGestureEvent, DragGestureListener, DragSource}
 import java.awt.{Toolkit, BorderLayout, Color, Container}
 import java.awt.event.{WindowAdapter, WindowEvent}
 import java.io.{PrintWriter, File, InputStream}
@@ -8,19 +9,23 @@ import javax.swing.{JDialog, JFrame, JSplitPane, UIManager}
 
 import com.alee.laf.WebLookAndFeel
 import com.alee.laf.splitpane.WebSplitPane
+import org.medit.core.entries.DesktopEntries
+import org.medit.core.icons.IconDownloader
 import org.medit.core.root.{RootAccessServer, RootAccess}
 import org.medit.gui.folders.{FolderPanel}
 import org.medit.gui.entries.{EntriesPanel, EntryDetailsPanel}
 import org.medit.gui.panels.LeftMenu
 import org.medit.gui.utils._
+import org.medit.gui.utils.dnd.{EntryDropHandler, DragManager, EntryDragViewHandler}
 import org.medit.gui.utils.styles.Styles
 
 object Main extends SinglePID with FontsLoader {
   val frame = new JFrame("Meow")
 
   val styleFile = new File("./src/main/resources/styles/app")
-  val styles = new Styles(frame, getFile("/styles/app"), if(styleFile.exists()) Some(styleFile) else None)
-  
+  val styles = new Styles(frame, getFile("/styles/app"), if (styleFile.exists()) Some(styleFile) else None)
+  var splitPane: WebSplitPane = null
+
   def getFile(path: String): InputStream = {
     getClass.getResourceAsStream(path)
   }
@@ -32,10 +37,45 @@ object Main extends SinglePID with FontsLoader {
     styles.updateComponents
   }
 
-  var splitPane : WebSplitPane = null 
-  
+  def initGUI(): Unit = {
+//    IconDownloader.saveFavicon("http://stackoverflow.com/questions/7217271/extract-main-domain-name-from-a-given-url", "stackoverflow")
+//    System.exit(0)
+//    println(DesktopEntries.getSiteNameFromUrl("https://extensions.gnome.org"))
+//    println(DesktopEntries.getExecFromCommand("\"/usr/bin/meow\" yo test" ))
+//    println(DesktopEntries.getExecFromCommand("meow" ))
+//    println(DesktopEntries.getExecFromCommand("\""))
+//    println(DesktopEntries.getExecFromCommand("meow.exe" ))
+//    println(DesktopEntries.getExecFromCommand("/usr/bin/meow" ))
+//    println(DesktopEntries.getExecFromCommand("/usr/bin/meow aa" ))
+//    println(DesktopEntries.getExecFromCommand("./usr/bin/meow" ))
+//    println(DesktopEntries.getExecFromCommand("https://www.google.fr/" ))
+//    System.exit(0)
+    WebLookAndFeel.install()
+    DragManager.initialize()
+    System.setProperty("awt.useSystemAAFontSettings", "on")
+    System.setProperty("swing.aatext", "true")
+
+    javax.swing.SwingUtilities.invokeLater(new Runnable() {
+      def run() {
+        UIManager.put("Panel.background", Color.white)
+
+        UIManager.getInstalledLookAndFeels().foreach { laf =>
+          if (laf.getName() == "Nimbus") {
+            UIManager.put("Panel.background", Color.white)
+            UIManager.setLookAndFeel(laf.getClassName());
+          }
+        }
+        JFrame.setDefaultLookAndFeelDecorated(true)
+        JDialog.setDefaultLookAndFeelDecorated(true)
+
+        createAndShowGUI()
+        //        Timer.printTimers()
+      }
+    })
+  }
+
   def createAndShowGUI() = {
-//    frame.setIconImage(Icon.get("large_tiles", 16).getImage)
+    //    frame.setIconImage(Icon.get("large_tiles", 16).getImage)
     val width = AppPreferences.get[Int]("window/width", 800)
     val height = AppPreferences.get[Int]("window/height", 600)
     val posX = AppPreferences.get[Int]("window/posX", 10)
@@ -69,63 +109,10 @@ object Main extends SinglePID with FontsLoader {
     rootPanel.setLayout(new BorderLayout())
     rootPanel.add(splitPane2)
 
+//    frame.setTransferHandler(new EntryDropHandler())
+
     frame.setVisible(true)
     styles.start()
   }
-
-  def initGUI(): Unit = {
-      WebLookAndFeel.install(true)
-      System.setProperty("awt.useSystemAAFontSettings", "on")
-      System.setProperty("swing.aatext", "true")
-      UIManager.put("Panel.background", Color.white)
-
-      javax.swing.SwingUtilities.invokeLater(new Runnable() {
-        def run() {
-          UIManager.put("Panel.background", Color.white)
-          UIManager.getInstalledLookAndFeels().foreach { laf =>
-            if (laf.getName() == "Nimbus") {
-              UIManager.put("Panel.background", Color.white)
-              UIManager.setLookAndFeel(laf.getClassName());
-            }
-          }
-          JFrame.setDefaultLookAndFeelDecorated(true)
-          JDialog.setDefaultLookAndFeelDecorated(true)
-
-          createAndShowGUI()
-          //        Timer.printTimers()
-        }
-      })
-  }
-
-  /*
-  def main(args: Array[String]): Unit = {
-    RootAccess.stopServer()
-    if(args.length == 3 && args(1) == "admin") {
-      new RootAccessServer(args(2))
-    } else {
-      WebLookAndFeel.install(true)
-      System.setProperty("awt.useSystemAAFontSettings", "on")
-      System.setProperty("swing.aatext", "true")
-      UIManager.put("Panel.background", Color.white)
-
-      javax.swing.SwingUtilities.invokeLater(new Runnable() {
-        def run() {
-          UIManager.put("Panel.background", Color.white)
-          UIManager.getInstalledLookAndFeels().foreach { laf =>
-            if (laf.getName() == "Nimbus") {
-              UIManager.put("Panel.background", Color.white)
-              UIManager.setLookAndFeel(laf.getClassName());
-            }
-          }
-          JFrame.setDefaultLookAndFeelDecorated(true)
-          JDialog.setDefaultLookAndFeelDecorated(true)
-
-          createAndShowGUI()
-          //        Timer.printTimers()
-        }
-      })
-    }
-  }
-  */
 }
 

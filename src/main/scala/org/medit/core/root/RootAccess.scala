@@ -1,9 +1,13 @@
 package org.medit.core.root
 
+import java.awt.event.{ActionEvent, ActionListener}
 import java.io.File
+import javax.swing.Timer
 
 import org.jasypt.util.text.StrongTextEncryptor
 import org.medit.core.GnomeBlackList
+import org.medit.gui.entries.EntriesHeader
+import org.medit.gui.utils.EventsSystem
 
 import scala.sys.process.stringToProcess
 import scala.sys.process.stringSeqToProcess
@@ -22,7 +26,6 @@ object RootAccess {
   val port = 4328
 
   def getRootAccess = {
-//    val ret = s"pkexec java -jar /home/nico/workspace/Meow-Admin/target/scala-2.10/Meow-Admin-assembly-1.0.jar test ${key}".run
     s"pkexec meow admin ${key}".run
   }
 
@@ -49,23 +52,23 @@ object RootAccess {
     } catch { case e: Throwable => {}}
   }
 
-  def isRootEnabled : Boolean = {
-    try {
-      val res = Http(s"http://localhost:${port}/alive").header("content-type", "text/plain").asString
-      res.code == 200
-    } catch { case e: Throwable => { false }}
-  }
+  var isRootEnabled = false
 
-  def main(args: Array[String]) : Unit = {
-
-//    val f = new File("/usr/share/applications/nautilus.desktop")
-//    val conf = ConfigFactory.parseFile(f)
-//    println(conf)
-
-
-//    stopServer()
-//    getRootAccess
-//    Thread.sleep(4000)
-//    writeFile(new File("/usr/share/applications/ubuntu-amazon-default.desktop"), "[Desktop Entry]\nName=Amazon Changed\nType=Application\nIcon=amazon-store\nExec=unity-webapps-runner --amazon --app-id=ubuntu-amazon-default\nCategories=Internet;%%       ")
-  }
+  new Timer(1000, new ActionListener {
+    override def actionPerformed(p1: ActionEvent): Unit = {
+      val prevStatus = isRootEnabled
+      try {
+        val res = Http(s"http://localhost:${port}/alive").header("content-type", "text/plain").asString
+        isRootEnabled = res.code == 200
+        if(prevStatus != isRootEnabled) {
+          EventsSystem.triggerEvent(EventsSystem.rootUnlocked)
+        }
+      } catch { case e: Throwable => {
+        isRootEnabled = false
+        if(prevStatus == true) {
+          EventsSystem.triggerEvent(EventsSystem.rootLocked)
+        }
+      }}
+    }
+  }).start()
 }

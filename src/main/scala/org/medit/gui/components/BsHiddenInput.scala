@@ -17,7 +17,7 @@ class BsHiddenInput extends WebTextField {
     }
   })
   this.onExit(_ => {
-    if(!hasFocus && isEditable) {
+    if((!hasFocus || (hasFocus && getText().isEmpty)) && isEditable) {
       setDrawBorder(false)
     }
   })

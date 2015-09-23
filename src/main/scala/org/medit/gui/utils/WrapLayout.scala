@@ -3,10 +3,7 @@ package org.medit.gui.utils
 import java.awt._
 import javax.swing.JScrollPane
 import javax.swing.SwingUtilities
-//remove if not needed
-import scala.collection.JavaConversions._
 
-@SerialVersionUID(9075785607557180684L)
 class WrapLayout(align: Int) extends FlowLayout(align) {
 
 

@@ -2,11 +2,14 @@ package org.medit.core.icons
 
 import java.awt.Image
 import java.io.File
-import javax.swing.{ImageIcon, JLabel}
+import javax.imageio.ImageIO
+import javax.swing.{SwingUtilities, ImageIcon, JLabel}
 
-import org.medit.gui.utils.Colors
+import org.medit.gui.utils.{Timer, Colors}
 
 import scala.collection._
+import sys.process.stringToProcess
+import sys.process.stringSeqToProcess
 
 
 object IconFinder {
@@ -21,41 +24,45 @@ object IconFinder {
     })
   }
 
-  private def loadIcon(nameBase: String, size: Int = 64) : Image = {
+  def loadIcon(nameBase: String, size: Int = 64) : Image = {
     val iconName = nameBase.toLowerCase
     val iconFile = new File(nameBase)
 
     // Seems to be a path to a file, try to read the file
     if (iconFile.isFile) {
-      for(img <- ImageLoader.get(nameBase)) { iconCache(iconName) = img } }
-    else {
-      for(missingName <- IconLibrary.missingIcons.get(nameBase); img <- ImageLoader.get(missingName)) {
-        iconCache(iconName) = img
-      }
+      for(img <- ImageLoader.get(nameBase)) { iconCache(iconName) = img }
     }
     iconCache.getOrElseUpdate(iconName, {
-      val themesToSerach = IconLibrary.iconThemes(IconLibrary.iconTheme) ::: IconLibrary.iconThemes(IconLibrary.fallbackTheme)
-      val theme = themesToSerach.find(theme => {
-        theme.getIcon(iconName).isDefined
-      })
-      (for(m <- theme) yield {
-        m.getIcon(iconName).get
-      }).getOrElse(missing)
-//      if(theme.isDefined) {
-//        theme.get.getIcon(iconName).get
-//      } else {
-//        missing
-//      }
-//      IconLibrary.iconThemes(IconLibrary.iconTheme).getIcon(iconName).getOrElse(missing)
+      val cacheFileName = s"svg-raster/$nameBase.png"
+      val cacheFile = new File(cacheFileName)
+      if(cacheFile.exists) {
+        ImageIO.read(cacheFile)
+      } else {
+        val res = Seq("/home/nico/workspace/Meow/src/python/iconLookup.py", nameBase.toLowerCase, cacheFileName).!!
+        if (res.trim == "ok") {
+          ImageIO.read(new File(cacheFileName))
+        } else {
+          val themesToSearch = IconLibrary.iconThemes(IconLibrary.iconTheme) ::: IconLibrary.iconThemes(IconLibrary.fallbackTheme)
+          val theme = themesToSearch.find(theme => {
+            theme.getIcon(iconName).isDefined
+          })
+          (for(m <- theme) yield {
+            m.getIcon(iconName).get
+          }).orElse(
+              for(missingName <- IconLibrary.missingIcons.get(nameBase); img <- ImageLoader.get(missingName)) yield {
+                img
+              }
+          ).getOrElse(missing)
+        }
+      }
     })
   }
 
+  val loadingIcon = new ImageIcon(IconGenerator.generateIcon("-", Colors.gray))
+
   def getIconLoader(nameBase: String, size: Int = 64, label : JLabel) : ImageIcon = {
-    val baseIcon = loadIcon(nameBase, size)
-    val scaler = new ImageScaler(baseIcon, size, label)
-    scaler.setPriority(Thread.MIN_PRIORITY)
-    scaler.start()
-    new ImageIcon(baseIcon)
+    SwingUtilities.invokeLater(new ImageScaler(nameBase, size, label))
+    loadingIcon
   }
 }
 

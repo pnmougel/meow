@@ -1,15 +1,18 @@
 package org.medit.gui.entries.properties
 
+import java.awt.BorderLayout
+import javax.swing.JPanel
+
 import com.alee.laf.panel.WebPanel
 import com.alee.laf.text.WebTextField
-import org.medit.gui.components.BsHiddenInput
+import org.medit.gui.components.{BsLabel, BsHiddenInput}
 import org.medit.gui.entries.EntryView
 import org.medit.gui.utils.SwingEvents._
 
 /**
  * Created by nico on 16/09/15.
  */
-class NameProperty extends WebPanel with EntryProperty {
+class NameProperty extends JPanel(new BorderLayout()) with EntryProperty {
   val nameInput = new BsHiddenInput()
   nameInput.setEditable(isEditable)
   nameInput.setName("hidden-input application-name")
@@ -27,11 +30,19 @@ class NameProperty extends WebPanel with EntryProperty {
       }
     }
   })
-  add(nameInput, 0)
+  val appTypeLabel = new BsLabel("", false)
+  val leftPanel = new JPanel()
+  leftPanel.setBackground(null)
+  leftPanel.setName("margin-top")
+//  leftPanel.setMargin(4, 0, 0, 0)
+  leftPanel.add(appTypeLabel, 0)
+  add(leftPanel, BorderLayout.WEST)
+  add(nameInput)
 
   override def setEntry(newEntry: EntryView) = {
     isEditable = newEntry.entry.isEditable
     entry = Some(newEntry)
+    appTypeLabel.setText(newEntry.entry.getAppType())
     nameInput.setText(newEntry.entry.getName)
     nameInput.setEditable(isEditable)
   }

@@ -2,7 +2,7 @@ package org.medit.gui.utils
 
 import scala.collection._
 
-object Timer2 {
+object Timer {
 	private val deltas = mutable.HashMap[String, Double]()
 	private val timers = mutable.HashMap[String, Double]()
 	
