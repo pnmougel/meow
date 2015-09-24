@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Meow
+Exec=meow
+Icon=meow
+Comment=Menu editor for GNOME
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;System;Settings
+
