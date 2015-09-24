@@ -75,7 +75,7 @@ object SVGRasterize {
         cssFile.delete()
         System.setErr(prevErrStream)
       }
-      for(image <- bufferedImage) { ImageIO.write(image, "png", new File(svgRasterCacheName + "/" + rasterName)) }
+      for(image <- bufferedImage) { ImageIO.write(image, "png", new File(GlobalPaths.cacheFolder + "/" + rasterName)) }
       bufferedImage
     }
   }
