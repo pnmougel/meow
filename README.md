@@ -13,11 +13,10 @@ https://github.com/pnmougel/meow/raw/master/release/meow_1.0_all.deb
 You must have openjdk8, git, and sbt installed.
 
 ```
-sudo apt-get install openjdk-8-jdk git
 echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 642AC823
 sudo apt-get update
-sudo apt-get install sbt
+sudo apt-get install openjdk-8-jdk git sbt
 ```
 
 Then download the code and compile
