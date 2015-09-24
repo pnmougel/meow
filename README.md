@@ -1,13 +1,5 @@
 # meow
 
-## Download the app
-
-* For Ubuntu and other distributions with debian packaging 
-
-https://github.com/pnmougel/meow/raw/master/release/meow_1.0_all.deb
-
-* Rpm 
-
 ## Build the application
 
 You must have openjdk8, git, and sbt installed.
