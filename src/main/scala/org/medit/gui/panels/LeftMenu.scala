@@ -35,7 +35,7 @@ object LeftMenu extends WebPanel(new BorderLayout) {
 
   menuContent.setMargin(0, 10, 0, 10)
   menuContent.addComponent(tasksLabel)
-  menuContent.addComponent(addAppLabel)
+//  menuContent.addComponent(addAppLabel)
 //  menuContent.addComponent(new TaskPanel("Create an application folder", new AddFolderPanel()))
   menuContent.addComponent(new TaskPanel("Filter the applications", FiltersPanel))
 
