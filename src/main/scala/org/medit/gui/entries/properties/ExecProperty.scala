@@ -20,9 +20,9 @@ class ExecProperty extends JPanel(new FlowLayout(FlowLayout.LEADING)) with Entry
     val newExec = execInput.getText
     for (e <- entry; if (!newExec.trim.isEmpty && isEditable)) {
       if(newExec.startsWith("http")) {
-        e.entry.setValue("Exec", "xdg-open \"" + newExec + "\"")
+//        e.entry.setValue("Exec", "xdg-open \"" + newExec + "\"")
       } else {
-        e.entry.setValue("Exec", newExec)
+//        e.entry.setValue("Exec", newExec)
       }
       e.entry.save()
     }
@@ -34,7 +34,7 @@ class ExecProperty extends JPanel(new FlowLayout(FlowLayout.LEADING)) with Entry
   override def setEntry(newEntry: EntryView) = {
     isEditable = newEntry.entry.isEditable
     entry = Some(newEntry)
-    for(prop <- newEntry.entry.getValue("Exec")) {
+    for(prop <- newEntry.entry.executable) {
 //      execInput.setColumns(prop.size)
 
       // Compute maximum text size

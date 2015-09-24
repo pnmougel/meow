@@ -14,7 +14,7 @@ class VisibilityProperty extends WebPanel with EntryProperty {
   field.onClick( e => {
      for(e <- entry) {
        if(isEditable) {
-         e.entry.setValue("NoDisplay", (!field.isSelected).toString)
+//         e.entry.setValue("NoDisplay", (!field.isSelected).toString)
          e.entry.save()
        }
      }
@@ -25,6 +25,6 @@ class VisibilityProperty extends WebPanel with EntryProperty {
      isEditable = newEntry.entry.isEditable
      entry = Some(newEntry)
      field.setEditable(isEditable)
-     field.setSelected(!newEntry.entry.getBooleanValue("NoDisplay").getOrElse(false))
+//     field.setSelected(!newEntry.entry.getBooleanValue("NoDisplay").getOrElse(false))
    }
  }

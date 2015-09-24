@@ -19,7 +19,7 @@ class EntryDragViewHandler {
 
   def getObjectFlavor = TransferDataFlavor.entryFlavor
   def getView(entry: DesktopEntry, event: DragSourceDragEvent) : BufferedImage = {
-    val img = IconFinder.getIcon(entry.getIcon.getOrElse("None"), 30).getImage
+    val img = IconFinder.getIcon(entry.getIcon, 30).getImage
     val bi = new BufferedImage(30, 30, BufferedImage.TYPE_INT_ARGB)
     bi.getGraphics.drawImage(img, 0, 0, null)
     bi.getGraphics.dispose()

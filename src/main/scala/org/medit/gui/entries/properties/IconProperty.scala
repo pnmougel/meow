@@ -18,18 +18,18 @@ class IconProperty extends WebLabel with EntryProperty {
   override def setEntry(newEntry: EntryView) = {
     entry = Some(newEntry)
     isEditable = newEntry.entry.isEditable
-    println(newEntry.entry.getIcon.getOrElse("NOICON"))
-    setIcon(IconFinder.getIcon(newEntry.entry.getIcon.getOrElse("NOICON"), 50))
+    println(newEntry.entry.getIcon)
+    setIcon(IconFinder.getIcon(newEntry.entry.getIcon, 50))
   }
 
   this.onClick(event => {
     for(e <- entry; if isEditable) {
       val iconChooser = new IconChooser(e.entry, newIcon => {
-        e.entry.setValue("Icon", newIcon)
+//        e.entry.setValue("Icon", newIcon)
         e.entry.save()
-        val newIconImage = IconFinder.getIcon(e.entry.getIcon.getOrElse("NOICON"), 50)
+        val newIconImage = IconFinder.getIcon(e.entry.getIcon, 50)
         setIcon(newIconImage)
-        e.imageLabel.setIcon(IconFinder.getIcon(e.entry.getIcon.getOrElse("NOICON"), 70))
+        e.imageLabel.setIcon(IconFinder.getIcon(e.entry.getIcon, 70))
       })
       iconChooser.setVisible(this)
     }

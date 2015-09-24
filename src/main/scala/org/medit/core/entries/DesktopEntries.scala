@@ -8,63 +8,16 @@ import org.medit.core.utils.FileUtils
 
 import scala.collection.mutable
 import scala.collection.mutable.HashSet
+import scalaj.http.Http
+import MyJsonProtocol._
+import spray.json._
 
 object DesktopEntries {
   val home = System.getProperty("user.home")
-  val desktopEntriePaths = List(s"$home/.local/share/applications/", "/usr/share/applications", "/usr/local/share/applications")
 
-  // List of all desktop entries
-  var desktopEntries = List[DesktopEntry]()
-  for(path <- desktopEntriePaths) { findDesktopEntries(path) }
-
-  // Find all properties
-  val propertiesCount = mutable.HashMap[String, Int]()
-  val types = mutable.HashSet[String]()
-  for(desktopEntry <- desktopEntries; category <- desktopEntry.groups; property <- category.properties; key <- property.getKey()) {
-    if(!key.endsWith("]")) {
-      propertiesCount(key) = propertiesCount.getOrElseUpdate(key, 0) + 1
-      if(key == "Type") {
-        types.add(property.getValue().get)
-      }
-    }
-  }
-//  println(propertiesCount.toList.sortBy(_._2).mkString("\n"))
-//  println(types)
-
-  var desktopNames = HashSet[String]()
-
-  desktopEntries.foreach(entry => {
-    for (
-      desktops <- entry.getListValue("OnlyShowIn");
-      desktopName <- desktops
-    ) {
-      desktopNames.add(desktopName)
-    }
-    for (
-      desktops <- entry.getListValue("NotShowIn");
-      desktopName <- desktops
-    ) {
-      desktopNames.add(desktopName)
-    }
-  })
-
-  def findDesktopEntries(path: String): Unit = {
-    val f = new File(path)
-    if(f.isDirectory) {
-      f.listFiles().foreach(file => {
-        if (file.isDirectory) {
-          findDesktopEntries(file.getCanonicalPath)
-        } else {
-          if (file.getName.endsWith(".desktop")) {
-            val desktopEntry = new DesktopEntry(file)
-            desktopEntries = desktopEntry :: desktopEntries
-            // makeBackup(file)
-          }
-        }
-      })
-    }
-  }
-
+  // Query the list of entries
+  val res = Http(s"http://localhost:1080/list-app").header("content-type", "text/plain").asString
+  val desktopEntries = res.body.parseJson.convertTo[Array[DesktopEntry]].toList
   def getDesktopEntries() = {
     desktopEntries.sortBy(a => a.getName.replaceAllLiterally(" ", "z").toLowerCase())
   }
@@ -164,8 +117,8 @@ object DesktopEntries {
     try {
       out.println(fileContent)
       out.flush()
-      val newDesktopEntry = new DesktopEntry(outFile)
-      desktopEntries = newDesktopEntry :: desktopEntries
+//      val newDesktopEntry = new DesktopEntry(outFile)
+//      desktopEntries = newDesktopEntry :: desktopEntries
     } catch {
       case e: Throwable => {}
     } finally { out.close() }

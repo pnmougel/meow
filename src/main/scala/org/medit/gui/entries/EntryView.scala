@@ -26,7 +26,7 @@ class EntryView(val entry: DesktopEntry, iconSize: Int = 140, showLabel: Boolean
   setPreferredSize(dimension)
   setMaximumSize(dimension)
   setBackground(null)
-  val iconName = entry.getIcon.getOrElse("NOICON")
+  val iconName = entry.getIcon
 
   val textLabel = new MultilineLabelAutoFit(entry, iconSize, 45)
   textLabel.setName("entry-name-label")

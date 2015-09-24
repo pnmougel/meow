@@ -51,6 +51,7 @@ class HideAppInFolderFilter extends EntryFilter("Hide app in a folder") {
 
 class DesktopFilter(desktopName: String, default: Boolean = false) extends EntryFilter("Visible in " + desktopName, default) {
   def filter(e: EntryView) = {
-    e.entry.isVisible && e.entry.isDisplayedIn(List(desktopName))
+    e.entry.shouldShow
+//    e.entry.isVisible && e.entry.isDisplayedIn(List(desktopName))
   }
 }

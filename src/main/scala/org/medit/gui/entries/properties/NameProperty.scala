@@ -24,7 +24,7 @@ class NameProperty extends JPanel(new BorderLayout()) with EntryProperty {
     for(e <- entry; if(!newName.trim.isEmpty)) {
       e.textLabel.setText(newName)
       if(e.entry.isEditable) {
-        e.entry.setValue("Name", newName)
+//        e.entry.setValue("Name", newName)
         e.repaint()
         e.entry.save()
       }

@@ -91,7 +91,7 @@ class IconChooser(entry: DesktopEntry, f: (String) => Unit) extends WebPanel(new
     val searchText = searchField.getText
     if (!searchText.isEmpty) {
       iconsPanel.removeAll()
-      iconsList = IconLibrary.searchIcon(searchText, entry.getIcon.getOrElse(""))
+      iconsList = IconLibrary.searchIcon(searchText, entry.getIcon)
       loadMoreIcons()
 
       if (iconsPanel.getComponentCount == 0) {

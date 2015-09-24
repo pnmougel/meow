@@ -82,7 +82,7 @@ object EntriesPanel extends JPanel(new BorderLayout) {
             EntryDetailsPanel.setEntry(entryView)
           }
         } else if(e.getClickCount == 2) {
-          for(cmd <- entry.getValue("Exec")) {
+          for(cmd <- entry.executable) {
             cmd.run()
           }
         }

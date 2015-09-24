@@ -29,7 +29,8 @@ object Build extends Build {
     "org.jasypt" % "jasypt" % "1.9.2",
     "org.scalaj" %% "scalaj-http" % "1.1.5",
     "org.jclarion" % "image4j" % "0.7",
-    "org.jsoup" % "jsoup" % "1.8.3"
+    "org.jsoup" % "jsoup" % "1.8.3",
+    "io.spray" %%  "spray-json" % "1.3.2"
   )
 
   lazy val root = Project(id = "root", base = file("."))

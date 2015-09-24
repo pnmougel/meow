@@ -6,6 +6,7 @@ import javax.swing.Timer
 
 import org.jasypt.util.text.StrongTextEncryptor
 import org.medit.core.GnomeBlackList
+import org.medit.core.entries.{DesktopEntry, MyJsonProtocol}
 import org.medit.gui.entries.EntriesHeader
 import org.medit.gui.utils.EventsSystem
 

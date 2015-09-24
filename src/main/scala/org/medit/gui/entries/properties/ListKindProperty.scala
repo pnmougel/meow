@@ -28,18 +28,18 @@ class ListKindProperty(label: String, fieldKey: String, inputPrompt: String, hel
     val componentsToRemove = for(c <- items.getComponents; if(c != addInput)) yield { c }
     for(c <- componentsToRemove) { items.remove(c) }
 
-    for(e <- entry; itemList <- e.entry.getListValue(fieldKey); item <- itemList) {
-      val label = new BsLabel(item, isEditable)
-      label.setName("keyword")
-      label.onRemove( _ => {
-        e.entry.removeFromList(fieldKey, item)
-        e.entry.save()
-        updateItems()
-      })
-      items.add(label, 0)
-    }
-    items.doLayout()
-    Main.styles.updateComponents()
+//    for(e <- entry; itemList <- e.entry.getListValue(fieldKey); item <- itemList) {
+//      val label = new BsLabel(item, isEditable)
+//      label.setName("keyword")
+//      label.onRemove( _ => {
+//        e.entry.removeFromList(fieldKey, item)
+//        e.entry.save()
+//        updateItems()
+//      })
+//      items.add(label, 0)
+//    }
+//    items.doLayout()
+//    Main.styles.updateComponents()
   }
 
   // Field to add a new item
@@ -49,7 +49,7 @@ class ListKindProperty(label: String, fieldKey: String, inputPrompt: String, hel
   addInput.setInputPrompt(inputPrompt)
   addInput.onKeyKeyEnter(event => {
     for(e <- entry; if(!addInput.getText.isEmpty)) {
-      e.entry.addToList(fieldKey, addInput.getText)
+//      e.entry.addToList(fieldKey, addInput.getText)
       e.entry.save()
       addInput.setText("")
       updateItems()
