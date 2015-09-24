@@ -5,6 +5,7 @@ import java.io.File
 import javax.imageio.ImageIO
 import javax.swing.{SwingUtilities, ImageIcon, JLabel}
 
+import org.medit.core.utils.GlobalPaths
 import org.medit.gui.utils.{Timer, Colors}
 
 import scala.collection._
@@ -33,12 +34,12 @@ object IconFinder {
       for(img <- ImageLoader.get(nameBase)) { iconCache(iconName) = img }
     }
     iconCache.getOrElseUpdate(iconName, {
-      val cacheFileName = s"svg-raster/$nameBase.png"
+      val cacheFileName = s"${GlobalPaths.cacheFolder}/$nameBase.png"
       val cacheFile = new File(cacheFileName)
       if(cacheFile.exists) {
         ImageIO.read(cacheFile)
       } else {
-        val res = Seq("/home/nico/workspace/Meow/src/python/iconLookup.py", nameBase.toLowerCase, cacheFileName).!!
+        val res = Seq("src/python/iconLookup.py", nameBase.toLowerCase, cacheFileName).!!
         if (res.trim == "ok") {
           ImageIO.read(new File(cacheFileName))
         } else {

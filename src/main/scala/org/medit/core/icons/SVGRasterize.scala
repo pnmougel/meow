@@ -10,21 +10,22 @@ import org.apache.batik.anim.dom.SVGDOMImplementation
 import org.apache.batik.transcoder.image.ImageTranscoder
 import org.apache.batik.transcoder.{SVGAbstractTranscoder, TranscoderInput, TranscoderOutput, TranscodingHints, XMLAbstractTranscoder}
 import org.apache.batik.util.SVGConstants
+import org.medit.core.utils.GlobalPaths
 
 /**
  * @author nico
  */
 object SVGRasterize {
-  val svgRasterCacheName = "svg-raster"
-  val svgRasterCache = new File(svgRasterCacheName)
-  if(svgRasterCache.exists()) {
-    if(!svgRasterCache.isDirectory) {
-      svgRasterCache.delete()
-      svgRasterCache.mkdir()
-    }
-  } else {
-    svgRasterCache.mkdir()
-  }
+//  val svgRasterCacheName = "svg-raster"
+//  val svgRasterCache = new File(svgRasterCacheName)
+//  if(svgRasterCache.exists()) {
+//    if(!svgRasterCache.isDirectory) {
+//      svgRasterCache.delete()
+//      svgRasterCache.mkdir()
+//    }
+//  } else {
+//    svgRasterCache.mkdir()
+//  }
 
   val messageDigest = MessageDigest.getInstance("MD5")
   def md5Hash(text: String) : String = messageDigest.digest(text.getBytes()).map(0xFF & _).map { "%02x".format(_) }.foldLeft(""){_ + _}
@@ -32,7 +33,7 @@ object SVGRasterize {
 
   def rasterize(svgFile: File): Option[BufferedImage] = {
     val rasterName = md5Hash(svgFile.getCanonicalPath + svgFile.lastModified()) + ".png"
-    val rasterFile = svgRasterCache.listFiles().find(f => f.getName == rasterName)
+    val rasterFile = GlobalPaths.cacheFile.listFiles().find(f => f.getName == rasterName)
     if(rasterFile.isDefined) {
       Some(ImageIO.read(rasterFile.get))
     } else {
