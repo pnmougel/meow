@@ -63,48 +63,6 @@ class RootAccessServer(password: String) {
         }
         isOk
       })
-//      var lines = Array[String]()
-//      var message = "Ok"
-//      try {
-//        val bodyEncrypted = Source.fromInputStream(req.getRequestBody).getLines().mkString("\n")
-//        lines = textDecryptor.decrypt(bodyEncrypted).split("\n")
-//      } catch {
-//        case e: Throwable => {
-//          message = "Unable to read request data "
-//        }
-//      }
-//      if (lines.size > 3) {
-//        if (lines(0) == "UWP1SY2LPXK60GMXXYB5PZ2GEP3QR7KF9A3BDA8S") {
-//          val path = "/usr/share/applications/" + lines(1) + ".desktop"
-//          val file = new File(path)
-//          if (!path.contains("..") && file.exists() && file.isFile && !file.canExecute && !file.isHidden) {
-//            val content = lines.splitAt(2)._2.mkString("\n")
-//            val pw = new PrintWriter(file)
-//            try {
-//              pw.write(content)
-//              pw.flush()
-//            } catch {
-//              case e: Throwable => {
-//                message = "Unable to write the file"
-//              }
-//            } finally {
-//              pw.close()
-//            }
-//          } else {
-//            message = "Invalid file"
-//          }
-//        } else {
-//          message = "Invalid query"
-//        }
-//      } else {
-//        message = "Invalid query"
-//      }
-//      val status = if (message == "Ok") 200 else 401
-//      val out = message.getBytes()
-//      req.sendResponseHeaders(status, out.length)
-//      req.getResponseBody.write(out)
-//      req.getResponseBody.flush()
-//      req.getResponseBody.close()
     }
   }
 

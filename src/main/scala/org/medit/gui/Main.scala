@@ -38,18 +38,6 @@ object Main extends SinglePID with FontsLoader {
   }
 
   def initGUI(): Unit = {
-//    IconDownloader.saveFavicon("http://stackoverflow.com/questions/7217271/extract-main-domain-name-from-a-given-url", "stackoverflow")
-//    System.exit(0)
-//    println(DesktopEntries.getSiteNameFromUrl("https://extensions.gnome.org"))
-//    println(DesktopEntries.getExecFromCommand("\"/usr/bin/meow\" yo test" ))
-//    println(DesktopEntries.getExecFromCommand("meow" ))
-//    println(DesktopEntries.getExecFromCommand("\""))
-//    println(DesktopEntries.getExecFromCommand("meow.exe" ))
-//    println(DesktopEntries.getExecFromCommand("/usr/bin/meow" ))
-//    println(DesktopEntries.getExecFromCommand("/usr/bin/meow aa" ))
-//    println(DesktopEntries.getExecFromCommand("./usr/bin/meow" ))
-//    println(DesktopEntries.getExecFromCommand("https://www.google.fr/" ))
-//    System.exit(0)
     WebLookAndFeel.install()
     DragManager.initialize()
     System.setProperty("awt.useSystemAAFontSettings", "on")

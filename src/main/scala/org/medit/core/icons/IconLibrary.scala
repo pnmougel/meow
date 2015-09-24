@@ -1,17 +1,12 @@
 package org.medit.core.icons
 
-import java.awt.event.{ActionEvent, ActionListener}
-import java.io.{FileInputStream, File}
+import java.io.File
 import java.math.BigInteger
-import java.nio.ByteBuffer
-import java.nio.channels.FileChannel
-import java.nio.file.{Files, Paths}
 import java.security.MessageDigest
 
-import org.apache.commons.io.{IOUtils, FilenameUtils, FileUtils}
-import org.medit.core.icons.themes.{IconThemeNoIndex, IconTheme, IconThemeWithIndex}
+import org.apache.commons.io.{FileUtils, FilenameUtils}
+import org.medit.core.icons.themes.{IconTheme, IconThemeNoIndex, IconThemeWithIndex}
 import org.medit.core.utils.GlobalPaths
-import sun.security.provider.MD5
 
 import scala.collection.mutable
 import scala.sys.process.stringSeqToProcess
@@ -118,55 +113,4 @@ object IconLibrary {
   // Perform the icon lookup
   for (path <- GlobalPaths.pathsForIcons) { explorePath(new File(path)) }
   for (theme <- allThemes) { theme.buildInheritedThemes}
-
-  /*
-  def explorePath(curFile: File, level: Int, size: Int, category: String) : Unit = {
-    var file = curFile
-    var curSize = size
-    var curCategory = category
-    var fileName = file.getName
-    if (file.isDirectory) {
-      if (level == 1) {
-        curTheme = fileName
-      }
-      if(level > 1) {
-        if(categoriesList.contains(fileName)) { curCategory = fileName }
-        try {
-          curSize = (if(fileName.contains("x")) fileName.split("x")(0) else fileName).toInt
-        } catch { case e : NumberFormatException => {}}
-      }
-
-      file.listFiles().foreach(f => explorePath(f, level + 1, curSize, curCategory))
-    } else if(file.exists()) {
-      if(Files.isSymbolicLink(Paths.get(file.toURI))) {
-        val targetFile = new File(file.getParent + "/" + Files.readSymbolicLink(Paths.get(file.toURI)))
-        if(targetFile.exists()) {
-          file = targetFile
-          fileName = targetFile.getName
-        }
-      }
-      val ext = FilenameUtils.getExtension(fileName).toLowerCase
-      if (ext == "png" || ext == "jpg" || ext == "svg" || ext == "xpm") {
-        val fileNameWithoutExtension = FilenameUtils.getBaseName(fileName).toLowerCase
-
-        val (prevSize, prevPath, prevIsSvg) = allIconsPath.getOrElseUpdate((fileNameWithoutExtension, curTheme, curCategory), {
-          (curSize, file.getAbsolutePath, ext == "svg")
-        })
-
-        if(prevIsSvg && curSize > 48 || (!prevIsSvg && prevSize < curSize) || (ext == "svg" && prevSize < 30)) {
-          allIconsPath((fileNameWithoutExtension, curTheme, curCategory)) = (curSize, file.getAbsolutePath, ext == "svg")
-        }
-        val curIcon = icons.getOrElseUpdate(fileNameWithoutExtension, new AppIcon(fileName))
-        if(!curCategory.isEmpty) {
-          categories(curCategory).add(curIcon)
-          curIcon.addCategory(curCategory)
-        }
-        curIcon.addPath(file.getAbsolutePath, curTheme, curSize)
-      }
-    }
-    if(level == 3) { curCategory = ""}
-    if(level == 2) { curSize = -1}
-  }
-  */
-
 }

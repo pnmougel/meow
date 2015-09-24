@@ -17,25 +17,6 @@ import org.medit.gui.utils.Colors
  * Created by nico on 17/09/15.
  */
 object IconGenerator {
-
-  def main(args: Array[String]): Unit = {
-    for(color <- Colors.getColors(8, 75, 200)) {
-      val baseImage = generateIcon("Chromium web browser", color)
-      ImageIO.write(baseImage, "png", new File("icon" + color.toString + ".png"))
-    }
-
-//    val baseImage = generateIcon("Gimp", color)
-//    generateSVG("icon.svg", color, "Gimp")
-//    for(size <- iconSizes) {
-//      val scaledImage = baseImage.getScaledInstance(size, size, Image.SCALE_SMOOTH)
-//      val newImage = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
-//      val g = newImage.createGraphics()
-//      g.drawImage(scaledImage, 0, 0, null)
-//      g.dispose
-//      ImageIO.write(newImage, "png", new File("icon" + size + ".png"))
-//    }
-  }
-
   val iconSizes = Array(16, 22, 24, 32, 48, 64, 96, 128, 256)
 
   def generateIcon(text: String, color: Color) = {
