@@ -18,7 +18,6 @@ class IconProperty extends WebLabel with EntryProperty {
   override def setEntry(newEntry: EntryView) = {
     entry = Some(newEntry)
     isEditable = newEntry.entry.isEditable
-    println(newEntry.entry.getIcon.getOrElse("NOICON"))
     setIcon(IconFinder.getIcon(newEntry.entry.getIcon.getOrElse("NOICON"), 50))
   }
 

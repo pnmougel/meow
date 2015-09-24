@@ -39,7 +39,11 @@ object IconFinder {
       if(cacheFile.exists) {
         ImageIO.read(cacheFile)
       } else {
-        val res = Seq("src/python/iconLookup.py", nameBase.toLowerCase, cacheFileName).!!
+        var scriptPath = "/usr/share/meow/bin/iconLookup.py"
+        if(!new File(scriptPath).exists()) {
+          scriptPath = "src/python/iconLookup.py"
+        }
+        val res = Seq(scriptPath, nameBase.toLowerCase, cacheFileName).!!
         if (res.trim == "ok") {
           ImageIO.read(new File(cacheFileName))
         } else {

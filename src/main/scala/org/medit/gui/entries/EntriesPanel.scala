@@ -74,7 +74,6 @@ object EntriesPanel extends JPanel(new BorderLayout) {
     entryView.imageLabel.onClick(e => {
       if((e.getModifiers() & ActionEvent.CTRL_MASK) != ActionEvent.CTRL_MASK) {
         if(e.getClickCount == 1) {
-          println(entryView.entry)
           if(isSplitted) {
             merge()
           } else {

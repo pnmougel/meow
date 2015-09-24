@@ -46,7 +46,6 @@ object IconDownloader {
         else if(rel.contains("apple-touch-icon")) 20
         else if(rel.contains("shortcut icon")) 10
         else 5
-//        println((matchScore, href))
         (matchScore, href)
       }).sortBy(-1 * _._1).map(_._2)
       iconUrl = if(urls.isEmpty) { baseUrl + "/favicon.ico" } else urls(0)

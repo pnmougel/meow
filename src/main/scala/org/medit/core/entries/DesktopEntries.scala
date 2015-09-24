@@ -28,8 +28,6 @@ object DesktopEntries {
       }
     }
   }
-//  println(propertiesCount.toList.sortBy(_._2).mkString("\n"))
-//  println(types)
 
   var desktopNames = HashSet[String]()
 
@@ -90,7 +88,6 @@ object DesktopEntries {
 
   // Try to find the program run from the command
   def getExecFromCommand(command: String) : String = {
-    println(command)
     val exec = if(command.startsWith("\"") && command.length > 1) {
       command.split("\"")(1)
     } else if(command.startsWith("'") && command.length > 1) {
@@ -115,9 +112,6 @@ object DesktopEntries {
       // first try in the library if there is an icon matching the name
       // Then try to get an icon directly from the website
       icon = IconLibrary.getSingleIconPath(name).orElse(Some(IconDownloader.saveFavicon(appCommand, name)))
-//      println(appCommand)
-//      icon = Some(IconDownloader.saveFavicon(appCommand, name))
-//      println(icon)
     }
     //
     if(command.startsWith("file://")) {

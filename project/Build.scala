@@ -4,6 +4,8 @@ import com.typesafe.sbt.packager.archetypes.JavaAppPackaging
 import com.typesafe.sbt.packager.debian.DebianPlugin
 import com.typesafe.sbt.packager.linux.LinuxPlugin
 import com.typesafe.sbt.packager.linux.LinuxPlugin.autoImport._
+import com.typesafe.sbt.packager.rpm.RpmPlugin
+import com.typesafe.sbt.packager.rpm.RpmPlugin.autoImport._
 import com.typesafe.sbt.packager.universal.UniversalPlugin.autoImport._
 import sbt.Keys._
 import sbt._
@@ -36,6 +38,7 @@ object Build extends Build {
     .enablePlugins(DebianPlugin)
     .enablePlugins(JavaAppPackaging)
     .enablePlugins(LinuxPlugin)
+    .enablePlugins(RpmPlugin)
     .settings(
       fork := true,
       javaOptions += "-Disrelease=false",
@@ -57,9 +60,15 @@ object Build extends Build {
       version in Debian := "1.0",
       maintainer in Debian := "Pierre-Nicolas <pnmougel@gmail.com>",
       debianChangelog in Debian := Some(file("src/debian/changelog")),
-      // debianPackageDependencies in Debian ++= Seq("openjdk-8-jre"),
+      debianPackageDependencies in Debian ++= Seq("openjdk-8-jre", "dconf-cli", "python3"),
       packageDescription in Linux := "Medit menu editor",
       packageSummary in Linux := "Menu editor for gnome desktop"
+    ).settings(
+      rpmVendor in Rpm := "typesafe",
+      rpmLicense in Rpm := Some("BSD"),
+      rpmRelease := "1",
+      version in Rpm := "0.0.1",
+      rpmAutoreq := "no"
     )
     .settings(
       linuxPackageMappings += packageTemplateMapping(s"/usr")() withPerms ("0755"),
@@ -68,7 +77,7 @@ object Build extends Build {
       linuxPackageMappings += packageTemplateMapping(s"/usr/share/${appName}")() withPerms ("0755"),
       linuxPackageMappings += packageTemplateMapping(s"/usr/share/${appName}/bin")() withPerms ("0755"),
       linuxPackageMappings += packageTemplateMapping(s"/usr/share/${appName}/lib")() withPerms ("0755"),
-      linuxPackageMappings in Debian := {
+      linuxPackageMappings := {
         val mappings = linuxPackageMappings.value
         mappings map { linuxPackage =>
           linuxPackage.mappings.map { case (file, name) =>
@@ -78,21 +87,27 @@ object Build extends Build {
         }
         linuxPackageMappings.value
       },
-      linuxPackageMappings in Debian += {
+      linuxPackageMappings += {
         val file = sourceDirectory.value / "debian" / "copyright"
         packageMapping((file, s"/usr/share/doc/${name.value}/copyright")) withPerms "0644" asDocs()
       },
-      linuxPackageMappings in Debian += {
+      linuxPackageMappings += {
         val file = sourceDirectory.value / "debian" / "meow.desktop"
         packageMapping((file, s"/usr/local/share/applications/meow.desktop")) withPerms "0644" asDocs()
       },
-      linuxPackageMappings in Debian += {
+      linuxPackageMappings += {
         val file = sourceDirectory.value / "debian" / "meow.png"
         packageMapping((file, s"/usr/local/share/icons/meow.png")) withPerms "0644" asDocs()
       },
-      linuxPackageMappings in Debian += {
+      linuxPackageMappings += {
+        val file = sourceDirectory.value / "python" / "iconLookup.py"
+        packageMapping((file, s"/usr/share/meow/bin/iconLookup.py")) withPerms "0755"
+      },
+      linuxPackageMappings += {
         val file = sourceDirectory.value / "debian" / "meow.svg"
         packageMapping((file, s"/usr/local/share/icons/meow.svg")) withPerms "0644" asDocs()
-      }
+      },
+      linuxPackageMappings in Debian := linuxPackageMappings.value,
+      linuxPackageMappings in Rpm := linuxPackageMappings.value
     )
 }
