@@ -19,7 +19,7 @@ cd meow
 sbt run
 ```
 
-## Features
+## Features
 
 * Easily create folders for the gnome menu
 
